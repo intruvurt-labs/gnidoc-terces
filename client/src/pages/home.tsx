@@ -16,6 +16,7 @@ export default function Home() {
   const [activeAI, setActiveAI] = useState<'gemini' | 'runway' | 'imagen'>('gemini');
   const [outputMode, setOutputMode] = useState<'code' | 'preview' | 'files'>('code');
   const [showAbout, setShowAbout] = useState(false);
+  const { toast } = useToast();
   
   const {
     isGenerating,

@@ -4,8 +4,8 @@ import { storage } from "../storage";
 import * as fs from "fs";
 import * as path from "path";
 
-const ai = new GoogleGenAI({ 
-  apiKey: process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || "" 
+const ai = new GoogleGenAI({
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || ""
 });
 
 export interface GenerationResult {

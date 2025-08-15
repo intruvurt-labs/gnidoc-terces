@@ -260,8 +260,8 @@ export default function Home() {
                   data-testid="button-generate-code"
                   title={!prompt.trim() ? "Enter a prompt to generate code" : "Generate code with AI"}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-code text-cyber-green text-xl mb-2 block"></i>
+                  <div className="bg-burgundy-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-code text-white text-xl mb-2 block"></i>
                     <span className="text-xs font-orbitron text-black">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Code"}
                     </span>
@@ -275,8 +275,8 @@ export default function Home() {
                   data-testid="button-generate-image"
                   title={!prompt.trim() ? "Enter a prompt to create images" : "Create image with AI"}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-image text-cyber-cyan text-xl mb-2 block"></i>
+                  <div className="bg-burgundy-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-image text-white text-xl mb-2 block"></i>
                     <span className="text-xs font-orbitron text-black">
                       {!prompt.trim() ? "Enter Prompt" : "Create Image"}
                     </span>
@@ -290,8 +290,8 @@ export default function Home() {
                   data-testid="button-generate-video"
                   title={!prompt.trim() ? "Enter a prompt to generate videos" : "Generate video with AI"}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-video text-cyber-purple text-xl mb-2 block"></i>
+                  <div className="bg-burgundy-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-video text-white text-xl mb-2 block"></i>
                     <span className="text-xs font-orbitron text-black">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Video"}
                     </span>
@@ -301,11 +301,11 @@ export default function Home() {
                 <Button
                   onClick={() => handleGenerate('security')}
                   disabled={isGenerating || !latestProject?.result || !('code' in (latestProject.result as any))}
-                  className="cyber-border-red rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
+                  className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                   data-testid="button-security-scan"
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-shield-alt text-cyber-red text-xl mb-2 block"></i>
+                  <div className="bg-burgundy-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-shield-alt text-white text-xl mb-2 block"></i>
                     <span className="text-xs font-orbitron text-black">Security Scan</span>
                   </div>
                 </Button>

@@ -311,6 +311,13 @@ export default function Home() {
                 </Button>
               </div>
 
+              {/* Instructions */}
+              <div className="bg-cyber-green/10 border border-cyber-green/30 rounded-lg p-3 text-center">
+                <p className="text-xs text-cyber-green font-orbitron">
+                  ✨ Ready to generate! Modify the prompt above and click any generation button to start.
+                </p>
+              </div>
+
               {/* Demo Button */}
               <Button
                 onClick={() => fetch('/api/demo', { method: 'POST' }).then(() => window.location.reload())}

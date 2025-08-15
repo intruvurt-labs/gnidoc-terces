@@ -258,10 +258,13 @@ export default function Home() {
                   disabled={isGenerating || !prompt.trim()}
                   className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                   data-testid="button-generate-code"
+                  title={!prompt.trim() ? "Enter a prompt to generate code" : "Generate code with AI"}
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-code text-cyber-green text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">Generate Code</span>
+                    <span className="text-xs font-orbitron">
+                      {!prompt.trim() ? "Enter Prompt" : "Generate Code"}
+                    </span>
                   </div>
                 </Button>
                 

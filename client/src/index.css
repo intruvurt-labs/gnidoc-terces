@@ -46,6 +46,8 @@
   --cyber-red: hsl(348 100% 63%);
   --cyber-cyan: hsl(180 100% 50%);
   --cyber-purple: hsl(280 100% 50%);
+  --light-burgundy: hsl(330 60% 65%);
+  --dark-burgundy: hsl(330 80% 35%);
   --dark-bg: hsl(0 0% 4%);
   --dark-panel: hsl(0 0% 10%);
   --dark-card: hsl(0 0% 16%);

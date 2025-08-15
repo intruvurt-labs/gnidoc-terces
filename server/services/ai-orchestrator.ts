@@ -20,7 +20,7 @@ export class AIOrchestrator {
   async generateCode(prompt: string, options?: any): Promise<string> {
     try {
       // Check if API key is available
-      if (!process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY) {
+      if (!process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY && !process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY) {
         // Return demo code when API key is not configured
         return this.generateDemoCode(prompt, options);
       }

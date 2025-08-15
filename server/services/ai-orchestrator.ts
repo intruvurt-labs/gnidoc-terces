@@ -423,7 +423,100 @@ const TodoApp: React.FC = () => {
   );
 };
 
-export default TodoApp;`;
+export default TodoApp;
+\`\`\`
+
+## Styling
+
+\`\`\`css
+/* App.css - Todo Application Styles */
+.todo-app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #1a1a1a;
+  color: white;
+  min-height: 100vh;
+}
+
+.todo-app h1 {
+  color: #00ff41;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.input-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.todo-app input {
+  flex: 1;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: white;
+}
+
+.todo-app button {
+  padding: 12px 24px;
+  background: #00ff41;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.todo-item.completed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+\`\`\`
+
+## Package Configuration
+
+\`\`\`json
+{
+  "name": "react-typescript-todo",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^4.9.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
+  }
+}
+\`\`\`
+
+This complete todo application includes:
+- TypeScript interfaces for type safety
+- Local storage persistence
+- Modern React hooks (useState, useEffect)
+- Dark theme styling
+- Responsive design
+- Full CRUD operations (Create, Read, Update, Delete)
+
+The application is ready to use and can be extended with additional features like filtering, categories, or due dates.`;
     }
 
     // Default demo for other prompts

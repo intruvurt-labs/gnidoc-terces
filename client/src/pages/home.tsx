@@ -336,7 +336,7 @@ export default function Home() {
                 data-testid="button-execute-generation"
                 title={!prompt.trim() ? "Enter a prompt to start generation" : "Start AI generation"}
               >
-                <div className="bg-dark-panel py-4 rounded-lg w-full">
+                <div className="bg-burgundy-gradient py-4 rounded-lg w-full">
                   <span className="font-orbitron font-bold text-lg text-cyber-green">
                     <i className="fas fa-rocket mr-2"></i>
                     {isGenerating ? 'GENERATING...' : !prompt.trim() ? 'ENTER PROMPT TO START' : 'EXECUTE GENERATION'}

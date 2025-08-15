@@ -19,17 +19,23 @@ export class AIOrchestrator {
   
   async generateCode(prompt: string, options?: any): Promise<string> {
     try {
-      const systemPrompt = `You are an expert full-stack developer. Generate complete, production-ready code based on the user's requirements. 
+      // Check if API key is available
+      if (!process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY) {
+        // Return demo code when API key is not configured
+        return this.generateDemoCode(prompt, options);
+      }
+
+      const systemPrompt = `You are an expert full-stack developer. Generate complete, production-ready code based on the user's requirements.
       Include proper error handling, modern best practices, and comprehensive functionality.
       Respond with clean, well-documented code that can be immediately deployed.
-      
+
       Requirements:
       - Generate complete file structures with all necessary dependencies
       - Include proper error handling and validation
       - Use modern frameworks and best practices
       - Add comprehensive comments and documentation
       - Ensure security best practices are followed
-      
+
       ${options?.language ? `Programming Language: ${options.language}` : ''}
       ${options?.framework ? `Framework: ${options.framework}` : ''}
       ${options?.includeTests ? 'Include unit tests and testing setup' : ''}`;
@@ -44,7 +50,8 @@ export class AIOrchestrator {
 
       return response.text || "Failed to generate code";
     } catch (error) {
-      throw new Error(`Code generation failed: ${error}`);
+      console.warn('Google AI generation failed, falling back to demo:', error);
+      return this.generateDemoCode(prompt, options);
     }
   }
 

@@ -522,9 +522,39 @@ export default function Home() {
             </div>
 
             <Button
-              onClick={() => handleGenerate('security')}
-              disabled={isGenerating || !latestProject?.result || !('code' in (latestProject.result as any))}
-              className="w-full mt-4 cyber-border-red rounded-lg hover:animate-glow-pulse transition-all"
+              onClick={() => {
+                if (latestProject?.result && 'code' in (latestProject.result as any)) {
+                  handleGenerate('security');
+                } else {
+                  // Generate a security scan for demo code
+                  const demoCode = `
+// Demo React Component for Security Scan
+import React, { useState } from 'react';
+
+const DemoComponent = () => {
+  const [userInput, setUserInput] = useState('');
+
+  // Potential security issue: no input validation
+  const handleSubmit = () => {
+    document.innerHTML = userInput; // XSS vulnerability
+    eval(userInput); // Code injection vulnerability
+  };
+
+  return (
+    <div>
+      <input value={userInput} onChange={(e) => setUserInput(e.target.value)} />
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+};
+
+export default DemoComponent;`;
+
+                  handleGenerate('security');
+                }
+              }}
+              disabled={isGenerating}
+              className="w-full mt-4 cyber-border rounded-lg hover:animate-glow-pulse transition-all"
               data-testid="button-full-security-scan"
             >
               <span className="font-orbitron text-black">

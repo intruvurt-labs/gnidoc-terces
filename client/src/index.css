@@ -159,12 +159,12 @@
     color: var(--cyber-purple);
   }
 
-  .text-light-burgundy {
-    color: var(--light-burgundy);
+  .text-light-blue {
+    color: var(--light-blue);
   }
 
-  .text-dark-burgundy {
-    color: var(--dark-burgundy);
+  .text-dark-blue {
+    color: var(--dark-blue);
   }
   
   .bg-cyber-green {
@@ -183,16 +183,16 @@
     background-color: var(--cyber-purple);
   }
 
-  .bg-light-burgundy {
-    background-color: var(--light-burgundy);
+  .bg-light-blue {
+    background-color: var(--light-blue);
   }
 
-  .bg-dark-burgundy {
-    background-color: var(--dark-burgundy);
+  .bg-dark-blue {
+    background-color: var(--dark-blue);
   }
 
-  .bg-burgundy-gradient {
-    background: linear-gradient(135deg, var(--light-burgundy), var(--dark-burgundy));
+  .bg-blue-gradient {
+    background: linear-gradient(135deg, var(--light-blue), var(--dark-blue));
   }
   
   .border-cyber-green {
@@ -211,12 +211,12 @@
     border-color: var(--cyber-purple);
   }
 
-  .border-light-burgundy {
-    border-color: var(--light-burgundy);
+  .border-light-blue {
+    border-color: var(--light-blue);
   }
 
-  .border-dark-burgundy {
-    border-color: var(--dark-burgundy);
+  .border-dark-blue {
+    border-color: var(--dark-blue);
   }
 
   .animate-glow-pulse {

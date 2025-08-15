@@ -1,0 +1,693 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intruvurt Labs - AI Development Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        'primary': '#3B82F6',
+                        'primary-dark': '#1E40AF',
+                        'secondary': '#10B981',
+                        'accent': '#8B5CF6',
+                        'dark-bg': '#0F172A',
+                        'dark-card': '#1E293B',
+                        'dark-border': '#334155',
+                    }
+                }
+            },
+            darkMode: 'class'
+        };
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
+    <!-- @COMPONENT: ThemeProvider -->
+    <div id="app" class="min-h-screen">
+        <!-- Header -->
+        <!-- @COMPONENT: Header [theme toggle, user menu] -->
+        <header class="bg-white dark:bg-dark-card border-b border-gray-200 dark:border-dark-border sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cube text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                                Intruvurt Labs
+                            </h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">AI Development Platform</p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation & Controls -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Theme Toggle -->
+                        <!-- @STATE: isDarkMode:boolean = false -->
+                        <button 
+                            id="theme-toggle"
+                            data-event="click:toggleTheme"
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                            title="Toggle theme"
+                        >
+                            <i class="fas fa-moon dark:hidden text-gray-600"></i>
+                            <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
+                        </button>
+
+                        <!-- User Menu -->
+                        <div class="relative">
+                            <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-sm"></i>
+                                </div>
+                                <span class="hidden sm:block font-medium" data-bind="user.name">Developer</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- @END_COMPONENT: Header -->
+
+        <!-- Main Content -->
+        <div class="flex max-w-7xl mx-auto">
+            <!-- Sidebar Navigation -->
+            <!-- @COMPONENT: Sidebar [navigation tabs] -->
+            <aside class="w-64 bg-white dark:bg-dark-card border-r border-gray-200 dark:border-dark-border min-h-screen p-6">
+                <nav class="space-y-2">
+                    <!-- @STATE: activeTab:string = 'image' -->
+                    <button 
+                        data-tab="image" 
+                        data-event="click:setActiveTab"
+                        class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-primary text-white transition-colors duration-200"
+                    >
+                        <i class="fas fa-image"></i>
+                        <span class="font-medium">Image Generation</span>
+                    </button>
+                    
+                    <button 
+                        data-tab="video"
+                        data-event="click:setActiveTab"
+                        class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    >
+                        <i class="fas fa-video"></i>
+                        <span class="font-medium">Video Generation</span>
+                    </button>
+                    
+                    <button 
+                        data-tab="code"
+                        data-event="click:setActiveTab"
+                        class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    >
+                        <i class="fas fa-code"></i>
+                        <span class="font-medium">Code Analysis</span>
+                    </button>
+                </nav>
+
+                <!-- Quick Stats -->
+                <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Usage Today</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Images:</span>
+                            <span class="font-medium" data-bind="stats.images">12</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Videos:</span>
+                            <span class="font-medium" data-bind="stats.videos">3</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Code Reviews:</span>
+                            <span class="font-medium" data-bind="stats.codeReviews">8</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            <!-- @END_COMPONENT: Sidebar -->
+
+            <!-- Main Panel -->
+            <main class="flex-1 p-6">
+                <!-- Tab Content: Image Generation -->
+                <!-- @COMPONENT: ImageGenerationTab [prompt input, image display] -->
+                <div id="image-tab" class="tab-content">
+                    <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border p-8">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                                <i class="fas fa-image text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">AI Image Generation</h2>
+                                <p class="text-gray-600 dark:text-gray-400">Create stunning images with Google Gemini/Imagen</p>
+                            </div>
+                        </div>
+
+                        <!-- Input Section -->
+                        <div class="space-y-4 mb-8">
+                            <!-- Prompt Input -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Describe your image
+                                </label>
+                                <div class="relative">
+                                    <textarea
+                                        data-bind="imagePrompt"
+                                        placeholder="e.g., A futuristic cyberpunk cityscape at sunset with neon lights reflecting off wet streets, detailed digital art style..."
+                                        rows="4"
+                                        class="w-full p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 resize-vertical"
+                                        maxlength="2000"
+                                        data-mock="true"
+                                    >A futuristic cyberpunk cityscape at sunset with neon lights reflecting off wet streets, detailed digital art style</textarea>
+                                    <div class="absolute bottom-2 right-2 text-xs text-gray-500 dark:text-gray-400">
+                                        <span data-bind="promptLength">89</span>/2000
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Style and Parameters -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Style</label>
+                                    <select class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option data-mock="true">Photorealistic</option>
+                                        <option data-mock="true">Digital Art</option>
+                                        <option data-mock="true">Oil Painting</option>
+                                        <option data-mock="true">Anime/Manga</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Aspect Ratio</label>
+                                    <select class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option data-mock="true">1:1 (Square)</option>
+                                        <option data-mock="true">16:9 (Landscape)</option>
+                                        <option data-mock="true">9:16 (Portrait)</option>
+                                        <option data-mock="true">4:3 (Classic)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Quality</label>
+                                    <select class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                                        <option data-mock="true">Standard</option>
+                                        <option data-mock="true">High Quality</option>
+                                        <option data-mock="true">Ultra HD</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <button 
+                                data-event="click:generateImage"
+                                class="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg hover:from-primary-dark hover:to-primary transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                            >
+                                <i class="fas fa-magic mr-2"></i>
+                                Generate Image
+                            </button>
+                        </div>
+
+                        <!-- Generated Image Display -->
+                        <!-- @STATE: isGenerating:boolean = false, generatedImage:string = null -->
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 min-h-[400px] flex items-center justify-center relative overflow-hidden">
+                            <!-- Loading State -->
+                            <div class="hidden loading-state absolute inset-0 bg-gray-900 bg-opacity-75 flex flex-col items-center justify-center z-10">
+                                <div class="relative">
+                                    <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                    <div class="absolute inset-0 w-16 h-16 border-4 border-secondary border-b-transparent rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+                                </div>
+                                <p class="mt-4 text-white font-medium">Generating your image...</p>
+                                <p class="text-gray-300 text-sm">This may take 15-30 seconds</p>
+                            </div>
+
+                            <!-- Generated Image -->
+                            <!-- A vibrant cyberpunk cityscape at sunset with towering neon-lit skyscrapers -->
+                            <img 
+                                src="https://pixabay.com/get/g278f7c48e7db68ba4402f8f6efcd292b05df825f6800a9a68679d054f54db50f6fb579200ec1ed3be0bb1408a1641f7bab7dbc4a8ed6b0cdd14d7d302bba78ae_1280.jpg" 
+                                alt="Generated cyberpunk cityscape" 
+                                class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                                data-mock-image="true"
+                                data-implementation="Display generated image from API response"
+                            />
+
+                            <!-- Placeholder State -->
+                            <div class="hidden placeholder-state text-center">
+                                <i class="fas fa-image text-6xl text-gray-400 dark:text-gray-600 mb-4"></i>
+                                <p class="text-gray-500 dark:text-gray-400 text-lg">Your generated image will appear here</p>
+                                <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Enter a prompt and click generate to start</p>
+                            </div>
+                        </div>
+
+                        <!-- Image Actions -->
+                        <div class="flex flex-wrap gap-3 mt-6">
+                            <button class="flex items-center space-x-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                                <i class="fas fa-download"></i>
+                                <span>Download</span>
+                            </button>
+                            <button class="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200">
+                                <i class="fas fa-share"></i>
+                                <span>Share</span>
+                            </button>
+                            <button class="flex items-center space-x-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                                <i class="fas fa-edit"></i>
+                                <span>Enhance</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: ImageGenerationTab -->
+
+                <!-- Tab Content: Video Generation -->
+                <!-- @COMPONENT: VideoGenerationTab [video controls, upload] -->
+                <div id="video-tab" class="tab-content hidden">
+                    <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border p-8">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-accent to-primary rounded-xl flex items-center justify-center">
+                                <i class="fas fa-video text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">AI Video Generation</h2>
+                                <p class="text-gray-600 dark:text-gray-400">Create videos with Runway ML API</p>
+                            </div>
+                        </div>
+
+                        <!-- Video Input Section -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Input Panel -->
+                            <div class="space-y-6">
+                                <!-- Text Prompt -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Video Description
+                                    </label>
+                                    <textarea
+                                        placeholder="Describe the video you want to create..."
+                                        rows="4"
+                                        class="w-full p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                                        data-mock="true"
+                                    >A serene ocean wave crashing on a sandy beach at golden hour</textarea>
+                                </div>
+
+                                <!-- File Upload Zone -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Reference Image/Video (Optional)
+                                    </label>
+                                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-accent transition-colors duration-200 cursor-pointer">
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                        <p class="text-gray-600 dark:text-gray-400">Drag and drop files here, or click to browse</p>
+                                        <p class="text-sm text-gray-500 mt-2">Supports MP4, MOV, JPG, PNG (Max 100MB)</p>
+                                        <!-- @FUNCTIONALITY: File upload with drag-and-drop support -->
+                                    </div>
+                                </div>
+
+                                <!-- Video Settings -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Duration</label>
+                                        <select class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                                            <option data-mock="true">4 seconds</option>
+                                            <option data-mock="true">8 seconds</option>
+                                            <option data-mock="true">16 seconds</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Resolution</label>
+                                        <select class="w-full p-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">
+                                            <option data-mock="true">720p</option>
+                                            <option data-mock="true">1080p</option>
+                                            <option data-mock="true">4K</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button class="w-full px-6 py-4 bg-gradient-to-r from-accent to-primary text-white font-semibold rounded-lg hover:from-purple-600 hover:to-primary-dark transition-all duration-200">
+                                    <i class="fas fa-play mr-2"></i>
+                                    Generate Video
+                                </button>
+                            </div>
+
+                            <!-- Preview Panel -->
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 flex items-center justify-center min-h-[400px]">
+                                <!-- Video Player Placeholder -->
+                                <div class="text-center">
+                                    <i class="fas fa-film text-6xl text-gray-400 dark:text-gray-600 mb-4"></i>
+                                    <p class="text-gray-500 dark:text-gray-400 text-lg">Video preview will appear here</p>
+                                    <p class="text-gray-400 dark:text-gray-500 text-sm mt-2">Generated videos can be downloaded and shared</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: VideoGenerationTab -->
+
+                <!-- Tab Content: Code Analysis -->
+                <!-- @COMPONENT: CodeAnalysisTab [code input, analysis results] -->
+                <div id="code-tab" class="tab-content hidden">
+                    <div class="bg-white dark:bg-dark-card rounded-xl shadow-lg border border-gray-200 dark:border-dark-border p-8">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-xl flex items-center justify-center">
+                                <i class="fas fa-code text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">Code Analysis & Completion</h2>
+                                <p class="text-gray-600 dark:text-gray-400">Advanced analysis for blockchain & Web3 development</p>
+                            </div>
+                        </div>
+
+                        <!-- Technology Selector -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium">React</button>
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">Next.js</button>
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">TypeScript</button>
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">Solana</button>
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">Java</button>
+                            <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">CSS</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            <!-- Code Input -->
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        Code Input
+                                    </label>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600">
+                                            <i class="fas fa-upload mr-1"></i>
+                                            Upload File
+                                        </button>
+                                        <button class="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600">
+                                            <i class="fas fa-paste mr-1"></i>
+                                            Paste
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Code Editor -->
+                                <div class="relative">
+                                    <div class="bg-gray-900 rounded-lg overflow-hidden border border-gray-600">
+                                        <!-- Editor Header -->
+                                        <div class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-600">
+                                            <div class="flex items-center space-x-2">
+                                                <div class="flex space-x-1">
+                                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                                </div>
+                                                <span class="text-gray-300 text-sm font-mono">component.tsx</span>
+                                            </div>
+                                            <div class="text-gray-400 text-xs">
+                                                React TypeScript
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Code Content -->
+                                        <div class="p-4 font-mono text-sm overflow-auto" style="max-height: 400px;">
+                                            <pre class="text-gray-300"><code data-mock="true"><!-- @FUNCTIONALITY: Syntax highlighting should be implemented using a library like Prism.js or CodeMirror -->
+<span class="text-purple-400">import</span> <span class="text-yellow-300">React</span>, { <span class="text-blue-400">useState</span> } <span class="text-purple-400">from</span> <span class="text-green-400">'react'</span>;
+
+<span class="text-purple-400">const</span> <span class="text-yellow-300">WalletConnect</span> = () => {
+  <span class="text-purple-400">const</span> [<span class="text-blue-400">connected</span>, <span class="text-blue-400">setConnected</span>] = <span class="text-yellow-300">useState</span>(<span class="text-orange-400">false</span>);
+  <span class="text-purple-400">const</span> [<span class="text-blue-400">address</span>, <span class="text-blue-400">setAddress</span>] = <span class="text-yellow-300">useState</span>(<span class="text-green-400">''</span>);
+
+  <span class="text-purple-400">const</span> <span class="text-yellow-300">connectWallet</span> = <span class="text-purple-400">async</span> () => {
+    <span class="text-gray-500">// TODO: Implement Solana wallet connection</span>
+    <span class="text-purple-400">if</span> (<span class="text-blue-400">window</span>.<span class="text-blue-400">solana</span>) {
+      <span class="text-purple-400">try</span> {
+        <span class="text-purple-400">const</span> <span class="text-blue-400">response</span> = <span class="text-purple-400">await</span> <span class="text-blue-400">window</span>.<span class="text-blue-400">solana</span>.<span class="text-yellow-300">connect</span>();
+        <span class="text-yellow-300">setAddress</span>(<span class="text-blue-400">response</span>.<span class="text-blue-400">publicKey</span>.<span class="text-yellow-300">toString</span>());
+        <span class="text-yellow-300">setConnected</span>(<span class="text-orange-400">true</span>);
+      } <span class="text-purple-400">catch</span> (<span class="text-blue-400">err</span>) {
+        <span class="text-blue-400">console</span>.<span class="text-yellow-300">error</span>(<span class="text-green-400">'Connection failed:'</span>, <span class="text-blue-400">err</span>);
+      }
+    }
+  };
+
+  <span class="text-purple-400">return</span> (
+    &lt;<span class="text-red-400">div</span> <span class="text-blue-400">className</span>=<span class="text-green-400">"wallet-container"</span>&gt;
+      {<span class="text-blue-400">connected</span> ? (
+        &lt;<span class="text-red-400">p</span>&gt;Connected: {<span class="text-blue-400">address</span>.<span class="text-yellow-300">slice</span>(<span class="text-orange-400">0</span>, <span class="text-orange-400">8</span>)}...&lt;/<span class="text-red-400">p</span>&gt;
+      ) : (
+        &lt;<span class="text-red-400">button</span> <span class="text-blue-400">onClick</span>={<span class="text-blue-400">connectWallet</span>}&gt;
+          Connect Wallet
+        &lt;/<span class="text-red-400">button</span>&gt;
+      )}
+    &lt;/<span class="text-red-400">div</span>&gt;
+  );
+};</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Analysis Actions -->
+                                <div class="flex space-x-3">
+                                    <button class="flex-1 px-4 py-3 bg-secondary text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                                        <i class="fas fa-search mr-2"></i>
+                                        Analyze Code
+                                    </button>
+                                    <button class="flex-1 px-4 py-3 bg-accent text-white rounded-lg hover:bg-purple-600 transition-colors duration-200">
+                                        <i class="fas fa-magic mr-2"></i>
+                                        Auto-Complete
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Analysis Results -->
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-4">Analysis Results</h3>
+                                    
+                                    <!-- Code Quality Score -->
+                                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-medium">Code Quality Score</span>
+                                            <span class="text-2xl font-bold text-secondary" data-mock="true">8.5/10</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-secondary to-primary h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Suggestions -->
+                                    <div class="space-y-3">
+                                        <div class="border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900 bg-opacity-50 rounded-lg p-3">
+                                            <div class="flex items-start space-x-2">
+                                                <i class="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                                                <div>
+                                                    <p class="font-medium text-yellow-800 dark:text-yellow-200" data-mock="true">Security Warning</p>
+                                                    <p class="text-sm text-yellow-700 dark:text-yellow-300" data-mock="true">Consider adding error boundary for wallet connection failures.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900 bg-opacity-50 rounded-lg p-3">
+                                            <div class="flex items-start space-x-2">
+                                                <i class="fas fa-lightbulb text-blue-600 mt-1"></i>
+                                                <div>
+                                                    <p class="font-medium text-blue-800 dark:text-blue-200" data-mock="true">Optimization</p>
+                                                    <p class="text-sm text-blue-700 dark:text-blue-300" data-mock="true">Use useCallback for connectWallet function to prevent unnecessary re-renders.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900 bg-opacity-50 rounded-lg p-3">
+                                            <div class="flex items-start space-x-2">
+                                                <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                                                <div>
+                                                    <p class="font-medium text-green-800 dark:text-green-200" data-mock="true">Best Practice</p>
+                                                    <p class="text-sm text-green-700 dark:text-green-300" data-mock="true">Good use of TypeScript types and error handling structure.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Network Analysis -->
+                                <div>
+                                    <h4 class="font-semibold mb-3">Blockchain Network Analysis</h4>
+                                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                        <div class="grid grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <span class="text-gray-600 dark:text-gray-400">Network:</span>
+                                                <span class="font-medium ml-2" data-mock="true">Solana Mainnet</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-600 dark:text-gray-400">Gas Fees:</span>
+                                                <span class="font-medium ml-2 text-secondary" data-mock="true">~$0.00025</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-600 dark:text-gray-400">TPS:</span>
+                                                <span class="font-medium ml-2" data-mock="true">65,000</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-600 dark:text-gray-400">Security:</span>
+                                                <span class="font-medium ml-2 text-green-500" data-mock="true">High</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: CodeAnalysisTab -->
+            </main>
+        </div>
+
+        <!-- About Section Modal -->
+        <!-- @COMPONENT: AboutModal [company info, branding] -->
+        <div id="about-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-dark-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
+                                <i class="fas fa-cube text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">About Intruvurt Labs</h2>
+                                <p class="text-gray-600 dark:text-gray-400">AI Development Platform</p>
+                            </div>
+                        </div>
+                        <button class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <div class="space-y-6">
+                        <p class="text-gray-700 dark:text-gray-300 leading-relaxed" data-mock="true">
+                            Intruvurt Labs is a cutting-edge AI development platform designed specifically for modern developers working with blockchain, Web3, and emerging technologies. Our comprehensive suite of AI-powered tools helps developers create, analyze, and optimize their code with unprecedented efficiency.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <i class="fas fa-image text-3xl text-primary mb-2"></i>
+                                <h4 class="font-semibold" data-mock="true">AI Image Generation</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400" data-mock="true">Create stunning visuals with advanced AI</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <i class="fas fa-video text-3xl text-accent mb-2"></i>
+                                <h4 class="font-semibold" data-mock="true">Video Generation</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400" data-mock="true">Professional video creation tools</p>
+                            </div>
+                            <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <i class="fas fa-code text-3xl text-secondary mb-2"></i>
+                                <h4 class="font-semibold" data-mock="true">Code Analysis</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400" data-mock="true">Advanced blockchain code review</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="font-semibold mb-3">Supported Technologies</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">React</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">Next.js</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">TypeScript</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">Solana</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">Java</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">CSS</span>
+                                <span class="px-3 py-1 bg-primary text-white rounded-full text-sm" data-mock="true">Firebase</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AboutModal -->
+
+        <!-- Toast Notifications -->
+        <!-- @COMPONENT: ToastNotifications [success, error, info] -->
+        <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+            <!-- Sample Success Toast -->
+            <div class="hidden toast bg-white dark:bg-dark-card border border-green-200 dark:border-green-800 rounded-lg shadow-lg p-4 max-w-sm">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900 dark:text-gray-100" data-mock="true">Image Generated!</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400" data-mock="true">Your image has been created successfully.</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ToastNotifications -->
+    </div>
+    <!-- @END_COMPONENT: ThemeProvider -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            // Theme Management
+            const themeToggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            
+            // TODO: Load theme preference from localStorage
+            let isDarkMode = false;
+
+            themeToggle?.addEventListener('click', function() {
+                isDarkMode = !isDarkMode;
+                if (isDarkMode) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+                // TODO: Save theme preference to localStorage
+            });
+
+            // Tab Management
+            const tabButtons = document.querySelectorAll('[data-tab]');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active state from all buttons
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+                    });
+                    
+                    // Add active state to clicked button
+                    this.classList.add('bg-primary', 'text-white');
+                    this.classList.remove('text-gray-600', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show target tab content
+                    const targetContent = document.getElementById(targetTab + '-tab');
+                    if (targetContent) {
+                        targetContent.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // TODO: Implement file upload functionality
+            // TODO: Implement API integrations for image, video, and code analysis
+            // TODO: Implement real-time code syntax highlighting
+            // TODO: Implement Firebase integration for user sessions
+            // TODO: Implement download functionality for generated content
+            // TODO: Implement toast notification system
+            // TODO: Implement form validation and error handling
+            // TODO: Implement drag and drop file upload
+            // TODO: Implement responsive behavior optimizations
+        })();
+    </script>
+</body>
+</html>

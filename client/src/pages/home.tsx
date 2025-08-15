@@ -41,7 +41,14 @@ export default function Home() {
   });
 
   const handleGenerate = (type: 'code' | 'image' | 'video' | 'security') => {
-    if (!prompt.trim() && type !== 'security') return;
+    if (!prompt.trim() && type !== 'security') {
+      toast({
+        title: "Input Required",
+        description: "Please enter a prompt to generate content",
+        variant: "destructive",
+      });
+      return;
+    }
 
     switch (type) {
       case 'code':

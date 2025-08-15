@@ -358,7 +358,7 @@ export default function Home() {
                   variant={outputMode === 'code' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('code')}
-                  className="px-3 py-1 text-xs bg-cyber-green/20 border-cyber-green text-cyber-green"
+                  className="px-3 py-1 text-xs bg-cyber-green/20 border-cyber-green text-black"
                   data-testid="button-output-code"
                 >
                   CODE
@@ -367,7 +367,7 @@ export default function Home() {
                   variant={outputMode === 'preview' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('preview')}
-                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-cyan hover:text-cyber-cyan"
+                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-black hover:border-cyber-cyan hover:text-black"
                   data-testid="button-output-preview"
                 >
                   PREVIEW
@@ -376,7 +376,7 @@ export default function Home() {
                   variant={outputMode === 'files' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('files')}
-                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-purple hover:text-cyber-purple"
+                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-black hover:border-cyber-purple hover:text-black"
                   data-testid="button-output-files"
                 >
                   FILES

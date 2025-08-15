@@ -176,7 +176,7 @@ export default function Home() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAbout(!showAbout)}
-                  className="px-3 py-1 text-xs font-fira text-cyber-cyan hover:text-cyber-green"
+                  className="px-3 py-1 text-xs font-fira text-black hover:text-black"
                   data-testid="button-about"
                 >
                   ABOUT

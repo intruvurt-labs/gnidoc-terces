@@ -527,7 +527,7 @@ export default function Home() {
               className="w-full mt-4 cyber-border-red rounded-lg hover:animate-glow-pulse transition-all"
               data-testid="button-full-security-scan"
             >
-              <span className="font-orbitron text-cyber-red">
+              <span className="font-orbitron text-black">
                 <i className="fas fa-search mr-2"></i>
                 FULL SCAN
               </span>

@@ -11,7 +11,7 @@ import { type Project, type GeneratedFile } from "@shared/schema";
 import gindocLogo from "@assets/gindoc_1755279048391.png";
 
 export default function Home() {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState("Create a modern React TypeScript todo application with dark theme and local storage persistence");
   const [activeAI, setActiveAI] = useState<'gemini' | 'runway' | 'imagen'>('gemini');
   const [outputMode, setOutputMode] = useState<'code' | 'preview' | 'files'>('code');
   const [showAbout, setShowAbout] = useState(false);

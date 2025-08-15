@@ -158,6 +158,14 @@
   .text-cyber-purple {
     color: var(--cyber-purple);
   }
+
+  .text-light-burgundy {
+    color: var(--light-burgundy);
+  }
+
+  .text-dark-burgundy {
+    color: var(--dark-burgundy);
+  }
   
   .bg-cyber-green {
     background-color: var(--cyber-green);

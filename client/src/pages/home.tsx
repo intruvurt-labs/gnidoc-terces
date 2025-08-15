@@ -60,6 +60,52 @@ export default function Home() {
       case 'security':
         if (latestProject?.result && typeof latestProject.result === 'object' && 'code' in latestProject.result) {
           performSecurityScan(String(latestProject.result.code));
+        } else {
+          // Use demo code for security scan if no project exists
+          const demoCode = `
+// Demo React Component for Security Analysis
+import React, { useState } from 'react';
+
+const DemoComponent = () => {
+  const [userInput, setUserInput] = useState('');
+  const [password, setPassword] = useState('');
+
+  // Security Issue 1: XSS vulnerability
+  const handleSubmit = () => {
+    document.getElementById('output').innerHTML = userInput;
+  };
+
+  // Security Issue 2: Weak password validation
+  const validatePassword = (pwd) => {
+    return pwd.length > 3; // Too weak
+  };
+
+  // Security Issue 3: Potential code injection
+  const processInput = (input) => {
+    return eval('return ' + input);
+  };
+
+  return (
+    <div>
+      <input
+        value={userInput}
+        onChange={(e) => setUserInput(e.target.value)}
+        placeholder="Enter some text..."
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button onClick={handleSubmit}>Submit</button>
+      <div id="output"></div>
+    </div>
+  );
+};
+
+export default DemoComponent;`;
+          performSecurityScan(demoCode);
         }
         break;
     }

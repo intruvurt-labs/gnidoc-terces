@@ -123,7 +123,7 @@ export default function Home() {
               variant="ghost"
               size="sm"
               onClick={() => setShowAbout(false)}
-              className="text-cyber-red hover:text-cyber-cyan"
+              className="text-black hover:text-black"
               data-testid="button-close-about"
             >
               ✕

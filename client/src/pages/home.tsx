@@ -277,7 +277,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-image text-cyber-cyan text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">
+                    <span className="text-xs font-orbitron text-white">
                       {!prompt.trim() ? "Enter Prompt" : "Create Image"}
                     </span>
                   </div>

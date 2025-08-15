@@ -262,7 +262,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-code text-cyber-green text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-white">
+                    <span className="text-xs font-orbitron text-black">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Code"}
                     </span>
                   </div>
@@ -277,7 +277,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-image text-cyber-cyan text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-white">
+                    <span className="text-xs font-orbitron text-black">
                       {!prompt.trim() ? "Enter Prompt" : "Create Image"}
                     </span>
                   </div>
@@ -292,7 +292,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-video text-cyber-purple text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-white">
+                    <span className="text-xs font-orbitron text-black">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Video"}
                     </span>
                   </div>
@@ -306,7 +306,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-shield-alt text-cyber-red text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-white">Security Scan</span>
+                    <span className="text-xs font-orbitron text-black">Security Scan</span>
                   </div>
                 </Button>
               </div>

@@ -306,7 +306,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-shield-alt text-cyber-red text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">Security Scan</span>
+                    <span className="text-xs font-orbitron text-white">Security Scan</span>
                   </div>
                 </Button>
               </div>

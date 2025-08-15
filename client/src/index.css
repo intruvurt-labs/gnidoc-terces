@@ -182,6 +182,18 @@
   .bg-cyber-purple {
     background-color: var(--cyber-purple);
   }
+
+  .bg-light-burgundy {
+    background-color: var(--light-burgundy);
+  }
+
+  .bg-dark-burgundy {
+    background-color: var(--dark-burgundy);
+  }
+
+  .bg-burgundy-gradient {
+    background: linear-gradient(135deg, var(--light-burgundy), var(--dark-burgundy));
+  }
   
   .border-cyber-green {
     border-color: var(--cyber-green);

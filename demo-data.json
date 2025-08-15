@@ -1,0 +1,51 @@
+{
+  "demoProject": {
+    "id": "demo-project-123",
+    "name": "React TypeScript Todo App",
+    "description": "Complete React TypeScript todo application with dark theme",
+    "type": "code",
+    "status": "completed",
+    "prompt": "Create a complete React TypeScript todo application with dark theme, local storage persistence, drag and drop functionality, and modern UI components.",
+    "result": {
+      "code": "// Complete React TypeScript Todo Application\nimport React, { useState, useEffect } from 'react';\nimport { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';\nimport './App.css';\n\ninterface Todo {\n  id: string;\n  text: string;\n  completed: boolean;\n  createdAt: Date;\n}\n\nconst App: React.FC = () => {\n  const [todos, setTodos] = useState<Todo[]>([]);\n  const [inputValue, setInputValue] = useState('');\n  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');\n\n  // Load todos from localStorage on component mount\n  useEffect(() => {\n    const savedTodos = localStorage.getItem('todos');\n    if (savedTodos) {\n      setTodos(JSON.parse(savedTodos));\n    }\n  }, []);\n\n  // Save todos to localStorage whenever todos change\n  useEffect(() => {\n    localStorage.setItem('todos', JSON.stringify(todos));\n  }, [todos]);\n\n  const addTodo = () => {\n    if (inputValue.trim() !== '') {\n      const newTodo: Todo = {\n        id: Date.now().toString(),\n        text: inputValue.trim(),\n        completed: false,\n        createdAt: new Date()\n      };\n      setTodos([...todos, newTodo]);\n      setInputValue('');\n    }\n  };\n\n  const toggleTodo = (id: string) => {\n    setTodos(todos.map(todo =>\n      todo.id === id ? { ...todo, completed: !todo.completed } : todo\n    ));\n  };\n\n  const deleteTodo = (id: string) => {\n    setTodos(todos.filter(todo => todo.id !== id));\n  };\n\n  const handleDragEnd = (result: any) => {\n    if (!result.destination) return;\n\n    const items = Array.from(filteredTodos);\n    const [reorderedItem] = items.splice(result.source.index, 1);\n    items.splice(result.destination.index, 0, reorderedItem);\n\n    setTodos(items);\n  };\n\n  const filteredTodos = todos.filter(todo => {\n    if (filter === 'active') return !todo.completed;\n    if (filter === 'completed') return todo.completed;\n    return true;\n  });\n\n  const completedCount = todos.filter(todo => todo.completed).length;\n  const activeCount = todos.length - completedCount;\n\n  return (\n    <div className=\"app\">\n      <div className=\"container\">\n        <h1 className=\"title\">Todo App</h1>\n        \n        <div className=\"input-section\">\n          <input\n            type=\"text\"\n            value={inputValue}\n            onChange={(e) => setInputValue(e.target.value)}\n            onKeyPress={(e) => e.key === 'Enter' && addTodo()}\n            placeholder=\"Add a new todo...\"\n            className=\"todo-input\"\n          />\n          <button onClick={addTodo} className=\"add-button\">\n            Add\n          </button>\n        </div>\n\n        <div className=\"filter-section\">\n          <button\n            className={filter === 'all' ? 'active' : ''}\n            onClick={() => setFilter('all')}\n          >\n            All ({todos.length})\n          </button>\n          <button\n            className={filter === 'active' ? 'active' : ''}\n            onClick={() => setFilter('active')}\n          >\n            Active ({activeCount})\n          </button>\n          <button\n            className={filter === 'completed' ? 'active' : ''}\n            onClick={() => setFilter('completed')}\n          >\n            Completed ({completedCount})\n          </button>\n        </div>\n\n        <DragDropContext onDragEnd={handleDragEnd}>\n          <Droppable droppableId=\"todos\">\n            {(provided) => (\n              <div\n                {...provided.droppableProps}\n                ref={provided.innerRef}\n                className=\"todo-list\"\n              >\n                {filteredTodos.map((todo, index) => (\n                  <Draggable key={todo.id} draggableId={todo.id} index={index}>\n                    {(provided) => (\n                      <div\n                        ref={provided.innerRef}\n                        {...provided.draggableProps}\n                        {...provided.dragHandleProps}\n                        className={`todo-item ${todo.completed ? 'completed' : ''}`}\n                      >\n                        <input\n                          type=\"checkbox\"\n                          checked={todo.completed}\n                          onChange={() => toggleTodo(todo.id)}\n                          className=\"todo-checkbox\"\n                        />\n                        <span className=\"todo-text\">{todo.text}</span>\n                        <button\n                          onClick={() => deleteTodo(todo.id)}\n                          className=\"delete-button\"\n                        >\n                          ×\n                        </button>\n                      </div>\n                    )}\n                  </Draggable>\n                ))}\n                {provided.placeholder}\n              </div>\n            )}\n          </Droppable>\n        </DragDropContext>\n\n        {todos.length === 0 && (\n          <div className=\"empty-state\">\n            <p>No todos yet. Add one above!</p>\n          </div>\n        )}\n      </div>\n    </div>\n  );\n};\n\nexport default App;"
+    },
+    "aiModel": "gemini",
+    "createdAt": "2025-01-15T18:22:00.000Z",
+    "userId": null
+  },
+  "demoFiles": [
+    {
+      "id": "file-1",
+      "projectId": "demo-project-123",
+      "fileName": "App.tsx",
+      "fileType": "typescript",
+      "content": "// Main App component with todo functionality",
+      "binaryData": null,
+      "size": 4230,
+      "downloadUrl": null,
+      "createdAt": "2025-01-15T18:22:00.000Z"
+    },
+    {
+      "id": "file-2", 
+      "projectId": "demo-project-123",
+      "fileName": "App.css",
+      "fileType": "css",
+      "content": "/* Dark theme styles for todo app */\n.app {\n  background: #1a1a1a;\n  color: #ffffff;\n  min-height: 100vh;\n}",
+      "binaryData": null,
+      "size": 890,
+      "downloadUrl": null,
+      "createdAt": "2025-01-15T18:22:00.000Z"
+    },
+    {
+      "id": "file-3",
+      "projectId": "demo-project-123", 
+      "fileName": "package.json",
+      "fileType": "json",
+      "content": "{\n  \"name\": \"todo-app\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"react\": \"^18.0.0\",\n    \"typescript\": \"^4.9.0\"\n  }\n}",
+      "binaryData": null,
+      "size": 156,
+      "downloadUrl": null,
+      "createdAt": "2025-01-15T18:22:00.000Z"
+    }
+  ]
+}

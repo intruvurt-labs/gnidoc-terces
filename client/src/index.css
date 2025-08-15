@@ -112,7 +112,7 @@
 
 @layer components {
   .cyber-border {
-    background: linear-gradient(45deg, var(--light-burgundy), var(--dark-burgundy), var(--light-burgundy));
+    background: linear-gradient(45deg, var(--light-blue), var(--dark-blue), var(--light-blue));
     padding: 1px;
   }
   

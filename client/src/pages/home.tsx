@@ -321,7 +321,7 @@ export default function Home() {
               {/* Demo Button */}
               <Button
                 onClick={() => fetch('/api/demo', { method: 'POST' }).then(() => window.location.reload())}
-                className="w-full bg-cyber-cyan/20 text-cyber-cyan hover:bg-cyber-cyan/30 font-orbitron font-bold py-2 text-sm border border-cyber-cyan/50 hover:border-cyber-cyan transition-all duration-300"
+                className="w-full bg-cyber-cyan/20 text-black hover:bg-cyber-cyan/30 font-orbitron font-bold py-2 text-sm border border-cyber-cyan/50 hover:border-cyber-cyan transition-all duration-300"
                 data-testid="button-demo"
               >
                 <i className="fas fa-play mr-2"></i>

@@ -262,7 +262,7 @@ export default function Home() {
                 >
                   <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
                     <i className="fas fa-code text-cyber-green text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">
+                    <span className="text-xs font-orbitron text-white">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Code"}
                     </span>
                   </div>

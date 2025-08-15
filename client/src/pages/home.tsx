@@ -185,7 +185,7 @@ export default function Home() {
                   variant={activeAI === 'gemini' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('gemini')}
-                  className="px-3 py-1 text-xs font-fira bg-cyber-green/20 border-cyber-green text-cyber-green hover:bg-cyber-green/30"
+                  className="px-3 py-1 text-xs font-fira bg-cyber-green/20 border-cyber-green text-black hover:bg-cyber-green/30"
                   data-testid="button-ai-gemini"
                 >
                   GEMINI
@@ -194,7 +194,7 @@ export default function Home() {
                   variant={activeAI === 'runway' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('runway')}
-                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-red hover:text-cyber-red"
+                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-black hover:border-cyber-red hover:text-black"
                   data-testid="button-ai-runway"
                 >
                   RUNWAY
@@ -203,7 +203,7 @@ export default function Home() {
                   variant={activeAI === 'imagen' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('imagen')}
-                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-purple hover:text-cyber-purple"
+                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-black hover:border-cyber-purple hover:text-black"
                   data-testid="button-ai-imagen"
                 >
                   IMAGEN

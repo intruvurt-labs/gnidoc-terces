@@ -169,7 +169,7 @@ export default DemoComponent;`;
               variant="ghost"
               size="sm"
               onClick={() => setShowAbout(false)}
-              className="text-black hover:text-black"
+              className="text-white hover:text-white"
               data-testid="button-close-about"
             >
               ✕
@@ -222,7 +222,7 @@ export default DemoComponent;`;
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAbout(!showAbout)}
-                  className="px-3 py-1 text-xs font-fira text-black hover:text-black"
+                  className="px-3 py-1 text-xs font-fira text-white hover:text-white"
                   data-testid="button-about"
                 >
                   ABOUT
@@ -231,7 +231,7 @@ export default DemoComponent;`;
                   variant={activeAI === 'gemini' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('gemini')}
-                  className="px-3 py-1 text-xs font-fira bg-cyber-green/20 border-cyber-green text-black hover:bg-cyber-green/30"
+                  className="px-3 py-1 text-xs font-fira bg-cyber-green/20 border-cyber-green text-white hover:bg-cyber-green/30"
                   data-testid="button-ai-gemini"
                 >
                   GEMINI
@@ -240,7 +240,7 @@ export default DemoComponent;`;
                   variant={activeAI === 'runway' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('runway')}
-                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-black hover:border-cyber-red hover:text-black"
+                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-white hover:border-cyber-red hover:text-white"
                   data-testid="button-ai-runway"
                 >
                   RUNWAY
@@ -249,7 +249,7 @@ export default DemoComponent;`;
                   variant={activeAI === 'imagen' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('imagen')}
-                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-black hover:border-cyber-purple hover:text-black"
+                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-white hover:border-cyber-purple hover:text-white"
                   data-testid="button-ai-imagen"
                 >
                   IMAGEN
@@ -308,7 +308,7 @@ export default DemoComponent;`;
                 >
                   <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
                     <i className="fas fa-code text-white text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-black">
+                    <span className="text-xs font-orbitron text-white">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Code"}
                     </span>
                   </div>
@@ -323,7 +323,7 @@ export default DemoComponent;`;
                 >
                   <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
                     <i className="fas fa-image text-white text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-black">
+                    <span className="text-xs font-orbitron text-white">
                       {!prompt.trim() ? "Enter Prompt" : "Create Image"}
                     </span>
                   </div>
@@ -338,7 +338,7 @@ export default DemoComponent;`;
                 >
                   <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
                     <i className="fas fa-video text-white text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-black">
+                    <span className="text-xs font-orbitron text-white">
                       {!prompt.trim() ? "Enter Prompt" : "Generate Video"}
                     </span>
                   </div>
@@ -352,7 +352,7 @@ export default DemoComponent;`;
                 >
                   <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
                     <i className="fas fa-shield-alt text-white text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron text-black">Security Scan</span>
+                    <span className="text-xs font-orbitron text-white">Security Scan</span>
                   </div>
                 </Button>
               </div>
@@ -367,7 +367,7 @@ export default DemoComponent;`;
               {/* Demo Button */}
               <Button
                 onClick={() => fetch('/api/demo', { method: 'POST' }).then(() => window.location.reload())}
-                className="w-full bg-cyber-cyan/20 text-black hover:bg-cyber-cyan/30 font-orbitron font-bold py-2 text-sm border border-cyber-cyan/50 hover:border-cyber-cyan transition-all duration-300"
+                className="w-full bg-cyber-cyan/20 text-white hover:bg-cyber-cyan/30 font-orbitron font-bold py-2 text-sm border border-cyber-cyan/50 hover:border-cyber-cyan transition-all duration-300"
                 data-testid="button-demo"
               >
                 <i className="fas fa-play mr-2"></i>
@@ -404,7 +404,7 @@ export default DemoComponent;`;
                   variant={outputMode === 'code' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('code')}
-                  className="px-3 py-1 text-xs bg-cyber-green/20 border-cyber-green text-black"
+                  className="px-3 py-1 text-xs bg-cyber-green/20 border-cyber-green text-white"
                   data-testid="button-output-code"
                 >
                   CODE
@@ -413,7 +413,7 @@ export default DemoComponent;`;
                   variant={outputMode === 'preview' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('preview')}
-                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-black hover:border-cyber-cyan hover:text-black"
+                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-white hover:border-cyber-cyan hover:text-white"
                   data-testid="button-output-preview"
                 >
                   PREVIEW
@@ -422,7 +422,7 @@ export default DemoComponent;`;
                   variant={outputMode === 'files' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('files')}
-                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-black hover:border-cyber-purple hover:text-black"
+                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-white hover:border-cyber-purple hover:text-white"
                   data-testid="button-output-files"
                 >
                   FILES
@@ -603,7 +603,7 @@ export default DemoComponent;`;
               className="w-full mt-4 cyber-border rounded-lg hover:animate-glow-pulse transition-all"
               data-testid="button-full-security-scan"
             >
-              <span className="font-orbitron text-black">
+              <span className="font-orbitron text-white">
                 <i className="fas fa-search mr-2"></i>
                 FULL SCAN
               </span>

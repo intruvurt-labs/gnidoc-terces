@@ -1,0 +1,325 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator - Create Stunning Images with AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#2563EB',
+                        'primary-dark': '#1D4ED8',
+                        'secondary': '#64748B',
+                        'success': '#10B981',
+                        'error': '#EF4444',
+                        'background': '#F1F5F9'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 2s infinite',
+                        'bounce-slow': 'bounce 1s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="font-inter bg-background min-h-screen">
+    <!-- @COMPONENT: MainApp [Main application container] -->
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-6 lg:p-8">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- @COMPONENT: Header [App header with title and description] -->
+            <header class="text-center mb-8 animate-fade-in">
+                <div class="inline-flex items-center justify-center p-3 bg-primary/10 rounded-2xl mb-4">
+                    <i class="fas fa-palette text-primary text-3xl mr-3"></i>
+                    <h1 class="text-4xl lg:text-5xl font-bold text-gray-800">
+                        AI Image Generator
+                    </h1>
+                </div>
+                <p class="text-lg text-secondary max-w-2xl mx-auto leading-relaxed">
+                    Transform your ideas into stunning visuals with the power of artificial intelligence. 
+                    Simply describe what you want to see, and watch it come to life.
+                </p>
+            </header>
+            <!-- @END_COMPONENT: Header -->
+
+            <!-- @COMPONENT: ImageGeneratorCard [Main generation interface] -->
+            <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                
+                <!-- @COMPONENT: PromptInputSection [Input area for prompts] -->
+                <div class="p-6 sm:p-8 border-b border-gray-100 bg-gradient-to-r from-white to-gray-50">
+                    <div class="space-y-4">
+                        <label for="prompt-input" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-lightbulb text-amber-500 mr-2"></i>
+                            Describe your image
+                        </label>
+                        
+                        <!-- @FUNCTIONALITY: Text input with validation and Enter key support -->
+                        <div class="relative">
+                            <textarea 
+                                id="prompt-input"
+                                data-bind="prompt"
+                                data-mock="true"
+                                placeholder="A majestic mountain landscape at golden hour with a serene lake reflecting the peaks, surrounded by pine trees and wildflowers in the foreground..."
+                                rows="3"
+                                class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all duration-200 resize-none text-gray-700 placeholder-gray-400 bg-white hover:border-gray-300"
+                                data-implementation="Should validate input length and content"
+                            ></textarea>
+                            <div class="absolute bottom-3 right-3 text-xs text-gray-400" data-bind="characterCount">
+                                0/500
+                            </div>
+                        </div>
+
+                        <!-- @COMPONENT: ActionButtons [Generate and example buttons] -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button 
+                                data-event="click:handleGenerate"
+                                data-implementation="Should validate form and call API"
+                                class="flex-1 bg-gradient-to-r from-primary to-blue-600 hover:from-primary-dark hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            >
+                                <i class="fas fa-wand-magic-sparkles mr-2"></i>
+                                Generate Image
+                            </button>
+                            
+                            <button 
+                                data-event="click:handleRandomPrompt"
+                                data-implementation="Should fill input with random creative prompt"
+                                class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-300 border border-gray-200"
+                            >
+                                <i class="fas fa-dice mr-2"></i>
+                                Random Idea
+                            </button>
+                        </div>
+                        <!-- @END_COMPONENT: ActionButtons -->
+                        
+                        <!-- @COMPONENT: PromptSuggestions [Quick prompt examples] -->
+                        <div class="mt-4">
+                            <p class="text-sm font-medium text-gray-600 mb-2">Popular prompts:</p>
+                            <div class="flex flex-wrap gap-2">
+                                <!-- @MAP: suggestedPrompts.map(prompt => ( -->
+                                <button data-mock="true" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-full transition-colors duration-200 border border-blue-200">
+                                    Cyberpunk cityscape
+                                </button>
+                                <button data-mock="true" class="text-xs bg-green-50 hover:bg-green-100 text-green-700 px-3 py-1 rounded-full transition-colors duration-200 border border-green-200">
+                                    Fantasy forest
+                                </button>
+                                <button data-mock="true" class="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-1 rounded-full transition-colors duration-200 border border-purple-200">
+                                    Abstract art
+                                </button>
+                                <button data-mock="true" class="text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 px-3 py-1 rounded-full transition-colors duration-200 border border-orange-200">
+                                    Space exploration
+                                </button>
+                                <!-- @END_MAP )) -->
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: PromptSuggestions -->
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: PromptInputSection -->
+
+                <!-- @COMPONENT: ImageDisplayArea [Generated image display] -->
+                <div class="p-6 sm:p-8">
+                    
+                    <!-- @COMPONENT: ErrorMessage [Error state display] -->
+                    <!-- @STATE: error:string = null -->
+                    <div class="hidden mb-6 bg-red-50 border-l-4 border-error text-red-700 p-4 rounded-r-lg animate-fade-in" data-bind="errorMessage" data-implementation="Show when error state is true">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-error mr-3"></i>
+                            <div>
+                                <p class="font-medium">Generation failed</p>
+                                <p class="text-sm text-red-600" data-mock="true">Failed to generate image. Please try a different prompt or check your connection.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: ErrorMessage -->
+
+                    <!-- @COMPONENT: ImageContainer [Main image display area] -->
+                    <div class="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl overflow-hidden shadow-inner min-h-[400px] lg:min-h-[500px] flex items-center justify-center">
+                        
+                        <!-- @COMPONENT: LoadingOverlay [Loading state] -->
+                        <!-- @STATE: isLoading:boolean = false -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-primary/90 to-blue-600/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 hidden" data-bind="loadingState" data-implementation="Show when loading is true">
+                            <div class="relative">
+                                <div class="w-16 h-16 border-4 border-white/20 rounded-full animate-spin border-t-white"></div>
+                                <div class="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-ping border-t-white/50"></div>
+                            </div>
+                            <div class="mt-6 text-center text-white">
+                                <h3 class="text-xl font-semibold mb-2">Creating your masterpiece</h3>
+                                <p class="text-blue-100 text-sm max-w-xs">AI is analyzing your prompt and generating a unique image...</p>
+                                <div class="flex items-center justify-center mt-4 space-x-1">
+                                    <div class="w-2 h-2 bg-white rounded-full animate-bounce" style="animation-delay: 0ms;"></div>
+                                    <div class="w-2 h-2 bg-white rounded-full animate-bounce" style="animation-delay: 150ms;"></div>
+                                    <div class="w-2 h-2 bg-white rounded-full animate-bounce" style="animation-delay: 300ms;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: LoadingOverlay -->
+
+                        <!-- @COMPONENT: GeneratedImage [Actual generated image] -->
+                        <!-- @STATE: imageUrl:string = null -->
+                        <!-- A breathtaking digital artwork of a mystical forest with ethereal lighting -->
+                        <img 
+                            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"
+                            alt="AI Generated Image"
+                            class="hidden w-full h-auto max-h-[500px] object-contain rounded-xl shadow-lg animate-fade-in"
+                            data-bind="generatedImage"
+                            data-implementation="Show when imageUrl is available"
+                            data-mock-image="true"
+                        />
+                        <!-- @END_COMPONENT: GeneratedImage -->
+
+                        <!-- @COMPONENT: PlaceholderState [Empty state] -->
+                        <div class="text-center text-gray-400 p-8" data-implementation="Show when no image and not loading">
+                            <div class="w-24 h-24 mx-auto mb-6 bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fas fa-image text-4xl text-gray-400"></i>
+                            </div>
+                            <h3 class="text-xl font-medium text-gray-600 mb-2">Ready to create something amazing?</h3>
+                            <p class="text-gray-500 max-w-sm mx-auto">Your AI-generated masterpiece will appear here. Enter a prompt above and hit generate!</p>
+                        </div>
+                        <!-- @END_COMPONENT: PlaceholderState -->
+
+                    </div>
+                    <!-- @END_COMPONENT: ImageContainer -->
+
+                    <!-- @COMPONENT: ImageActions [Download and share options] -->
+                    <div class="hidden mt-6 flex flex-col sm:flex-row gap-3 justify-center" data-bind="imageActions" data-implementation="Show when image is generated">
+                        <button class="flex items-center justify-center bg-success hover:bg-green-600 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-green-300">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Image
+                        </button>
+                        <button class="flex items-center justify-center bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-gray-400">
+                            <i class="fas fa-share mr-2"></i>
+                            Share
+                        </button>
+                        <button class="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                            <i class="fas fa-magic mr-2"></i>
+                            Generate Variation
+                        </button>
+                    </div>
+                    <!-- @END_COMPONENT: ImageActions -->
+
+                </div>
+                <!-- @END_COMPONENT: ImageDisplayArea -->
+
+            </div>
+            <!-- @END_COMPONENT: ImageGeneratorCard -->
+
+            <!-- @COMPONENT: FeaturesSection [Feature highlights] -->
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-bolt text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Lightning Fast</h3>
+                    <p class="text-gray-600 text-sm">Generate high-quality images in seconds with our optimized AI models.</p>
+                </div>
+                
+                <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-palette text-success text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Creative Freedom</h3>
+                    <p class="text-gray-600 text-sm">From photorealistic to abstract art - unleash your imagination without limits.</p>
+                </div>
+                
+                <div class="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas fa-crown text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Premium Quality</h3>
+                    <p class="text-gray-600 text-sm">Experience state-of-the-art AI technology for professional-grade results.</p>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: FeaturesSection -->
+
+            <!-- @COMPONENT: Footer [Simple footer] -->
+            <footer class="mt-16 text-center text-gray-500 text-sm">
+                <p>© 2024 AI Image Generator. Powered by advanced artificial intelligence.</p>
+            </footer>
+            <!-- @END_COMPONENT: Footer -->
+
+        </div>
+    </div>
+    <!-- @END_COMPONENT: MainApp -->
+
+    <script>
+        // TODO: Implement React component state management
+        // TODO: Implement API integration with Google Imagen
+        // TODO: Add form validation and error handling
+        // TODO: Implement image download functionality
+        // TODO: Add sharing capabilities
+
+        (function() {
+            // Mock functionality for demonstration purposes
+            const promptInput = document.getElementById('prompt-input');
+            const generateBtn = document.querySelector('[data-event="click:handleGenerate"]');
+            const randomBtn = document.querySelector('[data-event="click:handleRandomPrompt"]');
+            
+            // Character counter
+            if (promptInput) {
+                promptInput.addEventListener('input', function() {
+                    const counter = document.querySelector('[data-bind="characterCount"]');
+                    if (counter) {
+                        counter.textContent = `${this.value.length}/500`;
+                    }
+                });
+            }
+
+            // Random prompt examples
+            const samplePrompts = [
+                "A serene Japanese garden with cherry blossoms and a traditional pagoda reflected in a crystal-clear pond",
+                "A futuristic cyberpunk city with neon lights, flying cars, and towering skyscrapers in the rain",
+                "An enchanted fantasy forest with glowing mushrooms, fairy lights, and magical creatures",
+                "A majestic space scene with distant galaxies, colorful nebulae, and a lonely astronaut floating in the void",
+                "An underwater coral reef teeming with colorful fish, sea turtles, and bioluminescent creatures"
+            ];
+
+            if (randomBtn && promptInput) {
+                randomBtn.addEventListener('click', function() {
+                    const randomPrompt = samplePrompts[Math.floor(Math.random() * samplePrompts.length)];
+                    promptInput.value = randomPrompt;
+                    promptInput.dispatchEvent(new Event('input'));
+                });
+            }
+
+            // Keyboard support for Enter key
+            if (promptInput && generateBtn) {
+                promptInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        generateBtn.click();
+                    }
+                });
+            }
+
+            // Mock suggestion buttons
+            document.querySelectorAll('[data-mock="true"]').forEach(button => {
+                if (button.tagName === 'BUTTON' && button.textContent.trim() && promptInput) {
+                    button.addEventListener('click', function() {
+                        promptInput.value = this.textContent.trim();
+                        promptInput.dispatchEvent(new Event('input'));
+                    });
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

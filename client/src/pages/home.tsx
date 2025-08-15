@@ -41,7 +41,7 @@ export default function Home() {
   });
 
   const handleGenerate = (type: 'code' | 'image' | 'video' | 'security') => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() && type !== 'security') return;
 
     switch (type) {
       case 'code':

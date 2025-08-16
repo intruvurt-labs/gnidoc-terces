@@ -119,11 +119,42 @@ export default function Home() {
 
   return (
     <CyberpunkLayout>
-      <LoadingModal 
-        isOpen={isGenerating} 
-        progress={progress} 
+      <LoadingModal
+        isOpen={isGenerating}
+        progress={progress}
         status={status}
       />
+
+      {/* Error Display */}
+      {(projectsError || filesError) && (
+        <div className="glass-morph rounded-xl p-4 mb-6 border border-cyber-red/50 bg-cyber-red/10">
+          <div className="flex items-center space-x-2">
+            <i className="fas fa-exclamation-triangle text-cyber-red"></i>
+            <span className="text-cyber-red font-orbitron">Connection Error</span>
+          </div>
+          <p className="text-gray-300 text-sm mt-2">
+            Unable to fetch data. The system is attempting to reconnect...
+          </p>
+          {projectsError && (
+            <p className="text-xs text-gray-400 mt-1">
+              Projects: {String(projectsError)}
+            </p>
+          )}
+          {filesError && (
+            <p className="text-xs text-gray-400 mt-1">
+              Files: {String(filesError)}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {projectsLoading && (
+        <div className="glass-morph rounded-xl p-8 mb-6 text-center">
+          <i className="fas fa-spinner fa-spin text-cyber-green text-2xl mb-2"></i>
+          <p className="text-gray-300">Loading projects...</p>
+        </div>
+      )}
       
       {/* About Section */}
       {showAbout && (

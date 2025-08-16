@@ -357,6 +357,82 @@ html {
     100% { opacity: 1; }
   }
 
+  /* Rainbow text animation for GINDOC header */
+  @keyframes rainbow-animation {
+    0% {
+      background-position: 0% 50%;
+      text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    }
+    25% {
+      background-position: 25% 50%;
+      text-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+    }
+    50% {
+      background-position: 50% 50%;
+      text-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+    75% {
+      background-position: 75% 50%;
+      text-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+    }
+    100% {
+      background-position: 100% 50%;
+      text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+    }
+  }
+
+  @keyframes color-shift {
+    0% { filter: hue-rotate(0deg); }
+    25% { filter: hue-rotate(90deg); }
+    50% { filter: hue-rotate(180deg); }
+    75% { filter: hue-rotate(270deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+
+  .animated-rainbow-text {
+    background: linear-gradient(
+      45deg,
+      #00ff41,     /* Cyber green */
+      #00ffff,     /* Cyan */
+      #ff00ff,     /* Magenta */
+      #ffff00,     /* Yellow */
+      #ff4444,     /* Red */
+      #4444ff,     /* Blue */
+      #00ff41      /* Back to green */
+    );
+    background-size: 400% 400%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow-animation 3s ease-in-out infinite;
+    position: relative;
+    display: inline-block;
+  }
+
+  .animated-rainbow-text::before {
+    content: 'GINDOC';
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(
+      45deg,
+      #00ff41,
+      #00ffff,
+      #ff00ff,
+      #ffff00,
+      #ff4444,
+      #4444ff,
+      #00ff41
+    );
+    background-size: 400% 400%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: color-shift 2s linear infinite;
+    filter: blur(0.5px);
+    z-index: -1;
+  }
+
   /* Performance optimizations */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

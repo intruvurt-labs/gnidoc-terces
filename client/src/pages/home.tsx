@@ -7,6 +7,7 @@ import FileCard from "@/components/ui/file-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIGeneration } from "@/hooks/use-ai-generation";
+import { useConnectionHealth } from "@/hooks/use-connection-health";
 import { type Project, type GeneratedFile } from "@shared/schema";
 import gindocLogo from "@assets/gindoc_1755279048391.png";
 

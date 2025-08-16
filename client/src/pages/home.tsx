@@ -138,6 +138,30 @@ export default function Home() {
         status={status}
       />
 
+      {/* Tri-Analysis Loading Modal */}
+      {isAnalyzing && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+          <div className="glass-morph rounded-xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <i className="fas fa-chart-line text-cyber-purple text-4xl mb-4 animate-pulse"></i>
+              <h3 className="text-xl font-orbitron font-bold text-cyber-purple mb-2">
+                Tri-Analysis Processing
+              </h3>
+              <p className="text-gray-300 mb-4">{currentStep}</p>
+              <div className="w-full bg-dark-card rounded-full h-3 mb-2">
+                <div
+                  className="bg-cyber-purple h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${analysisProgress}%` }}
+                ></div>
+              </div>
+              <div className="text-cyber-purple font-orbitron text-sm">
+                {analysisProgress}% Complete
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Connection Status */}
       {!isOnline && (
         <div className="glass-morph rounded-xl p-4 mb-6 border border-cyber-red/50 bg-cyber-red/10">

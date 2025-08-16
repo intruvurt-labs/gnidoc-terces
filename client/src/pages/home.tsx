@@ -308,32 +308,16 @@ export default function Home() {
                   maxLength={50000}
                   data-testid="input-prompt"
                 />
-                <div className="absolute bottom-3 right-3 flex space-x-2">
-                  <input
-                    type="file"
-                    multiple
-                    accept=".js,.ts,.jsx,.tsx,.py,.java,.cpp,.c,.css,.html,.json,.md,.txt,.sol"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <label htmlFor="file-upload">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-cyber-green hover:text-cyber-cyan transition-colors h-8 w-8 p-0"
-                      title="Upload Code Files"
-                      data-testid="button-upload-file"
-                      asChild
-                    >
-                      <span>
-                        <i className="fas fa-paperclip"></i>
-                      </span>
-                    </Button>
-                  </label>
-                  <div className="text-xs text-gray-500 mt-1">
+                <div className="absolute bottom-3 right-3 flex items-center space-x-3">
+                  <div className="text-xs text-gray-500">
                     {prompt.length}/50000
                   </div>
+                  {uploadedFiles.length > 0 && (
+                    <div className="flex items-center space-x-2 text-xs">
+                      <i className="fas fa-paperclip text-cyber-green"></i>
+                      <span className="text-cyber-green">{uploadedFiles.length} files</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

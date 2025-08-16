@@ -30,6 +30,7 @@ export default function Home() {
   } = useAIGeneration();
 
   const { isHealthy, isOnline, healthError } = useConnectionHealth();
+  const { isScanning: isSecurityScanning, scanResult, realtimeStats, performScan } = useSecurityScan();
 
   // Fetch recent projects
   const { data: projects = [], error: projectsError, isLoading: projectsLoading } = useQuery<Project[]>({

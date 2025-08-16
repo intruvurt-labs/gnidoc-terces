@@ -521,10 +521,10 @@ export default function Home() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          
+        <div className="space-y-4 sm:space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+
           {/* AI Status Panel */}
-          <div className="glass-morph rounded-xl p-6">
+          <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition animate-float" style={{ animationDelay: '0.5s' }}>
             <h3 className="text-lg font-orbitron font-bold text-cyber-green mb-4">
               <i className="fas fa-heartbeat mr-2"></i>
               AI Status

@@ -28,17 +28,28 @@ export default function Home() {
   } = useAIGeneration();
 
   // Fetch recent projects
-  const { data: projects = [] } = useQuery<Project[]>({
+  const { data: projects = [], error: projectsError, isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
     refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Fetch files for the latest project
   const latestProject = projects[0];
-  const { data: files = [] } = useQuery<GeneratedFile[]>({
+  const { data: files = [], error: filesError } = useQuery<GeneratedFile[]>({
     queryKey: ["/api/projects", latestProject?.id, "files"],
     enabled: !!latestProject?.id,
+    retry: 2,
   });
+
+  // Log errors for debugging
+  if (projectsError) {
+    console.error('Projects fetch error:', projectsError);
+  }
+  if (filesError) {
+    console.error('Files fetch error:', filesError);
+  }
 
   const handleGenerate = (type: 'code' | 'image' | 'video' | 'security') => {
     if (!prompt.trim()) return;

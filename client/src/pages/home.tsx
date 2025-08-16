@@ -241,7 +241,7 @@ export default function Home() {
         <div className="lg:col-span-2 space-y-6 animate-slide-up">
           
           {/* AI Orchestration Panel */}
-          <div className="glass-morph rounded-xl p-6">
+          <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-orbitron font-bold text-cyber-green flex items-center">
                 <i className="fas fa-brain mr-3 text-cyber-cyan"></i>

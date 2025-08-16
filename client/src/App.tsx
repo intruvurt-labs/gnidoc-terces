@@ -11,22 +11,26 @@ import EnhancedHome from "@/pages/enhanced-home";
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route component={NotFound} />
-    </Switch>
+    <CyberpunkLayout>
+      <Switch>
+        <Route path="/" component={EnhancedHome} />
+        <Route component={NotFound} />
+      </Switch>
+    </CyberpunkLayout>
   );
 }
 
 function App() {
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </QueryClientProvider>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 }

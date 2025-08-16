@@ -345,35 +345,38 @@ export default function Home() {
                 <Button
                   onClick={() => handleGenerate('image')}
                   disabled={isGenerating || !prompt.trim()}
-                  className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
+                  className="cyber-border rounded-lg hover:animate-glow-pulse smooth-transition h-auto p-0 animate-float"
                   data-testid="button-generate-image"
+                  style={{ animationDelay: '0.2s' }}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-image text-cyber-cyan text-xl mb-2 block"></i>
+                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full smooth-transition">
+                    <i className="fas fa-image text-cyber-cyan text-xl mb-2 block smooth-transition"></i>
                     <span className="text-xs font-orbitron">Create Image</span>
                   </div>
                 </Button>
-                
+
                 <Button
                   onClick={() => handleGenerate('video')}
                   disabled={isGenerating || !prompt.trim()}
-                  className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
+                  className="cyber-border rounded-lg hover:animate-glow-pulse smooth-transition h-auto p-0 animate-float"
                   data-testid="button-generate-video"
+                  style={{ animationDelay: '0.3s' }}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-video text-cyber-purple text-xl mb-2 block"></i>
+                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full smooth-transition">
+                    <i className="fas fa-video text-cyber-purple text-xl mb-2 block smooth-transition"></i>
                     <span className="text-xs font-orbitron">Generate Video</span>
                   </div>
                 </Button>
-                
+
                 <Button
                   onClick={() => handleGenerate('security')}
                   disabled={isGenerating || !latestProject?.result || !('code' in (latestProject.result as any))}
-                  className="cyber-border-red rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
+                  className="cyber-border-red rounded-lg hover:animate-glow-pulse smooth-transition h-auto p-0 animate-float"
                   data-testid="button-security-scan"
+                  style={{ animationDelay: '0.4s' }}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-shield-alt text-cyber-red text-xl mb-2 block"></i>
+                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full smooth-transition">
+                    <i className="fas fa-shield-alt text-cyber-red text-xl mb-2 block smooth-transition"></i>
                     <span className="text-xs font-orbitron">Security Scan</span>
                   </div>
                 </Button>

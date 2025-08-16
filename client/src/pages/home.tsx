@@ -128,12 +128,43 @@ export default function Home() {
         status={status}
       />
 
+      {/* Connection Status */}
+      {!isOnline && (
+        <div className="glass-morph rounded-xl p-4 mb-6 border border-cyber-red/50 bg-cyber-red/10">
+          <div className="flex items-center space-x-2">
+            <i className="fas fa-wifi text-cyber-red"></i>
+            <span className="text-cyber-red font-orbitron">Offline</span>
+          </div>
+          <p className="text-gray-300 text-sm mt-2">
+            No internet connection. Please check your network and try again.
+          </p>
+        </div>
+      )}
+
+      {/* Health Status */}
+      {isOnline && !isHealthy && (
+        <div className="glass-morph rounded-xl p-4 mb-6 border border-cyber-yellow/50 bg-cyber-yellow/10">
+          <div className="flex items-center space-x-2">
+            <i className="fas fa-exclamation-triangle text-cyber-yellow"></i>
+            <span className="text-cyber-yellow font-orbitron">Service Issue</span>
+          </div>
+          <p className="text-gray-300 text-sm mt-2">
+            System services are currently experiencing issues. Some features may be unavailable.
+          </p>
+          {healthError && (
+            <p className="text-xs text-gray-400 mt-1">
+              Error: {String(healthError)}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Error Display */}
-      {(projectsError || filesError) && (
+      {(projectsError || filesError) && isOnline && (
         <div className="glass-morph rounded-xl p-4 mb-6 border border-cyber-red/50 bg-cyber-red/10">
           <div className="flex items-center space-x-2">
             <i className="fas fa-exclamation-triangle text-cyber-red"></i>
-            <span className="text-cyber-red font-orbitron">Connection Error</span>
+            <span className="text-cyber-red font-orbitron">Data Fetch Error</span>
           </div>
           <p className="text-gray-300 text-sm mt-2">
             Unable to fetch data. The system is attempting to reconnect...

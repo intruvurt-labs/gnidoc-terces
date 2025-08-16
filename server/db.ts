@@ -32,36 +32,66 @@ export const db = drizzle(pool);
 export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      throw new Error('Failed to get user');
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      throw new Error('Failed to get user by username');
+    }
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(user).returning();
-    return newUser;
+    try {
+      const [newUser] = await db.insert(users).values(user).returning();
+      return newUser;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw new Error('Failed to create user');
+    }
   }
 
   // Project methods
   async createProject(project: InsertProject): Promise<Project> {
-    const [newProject] = await db.insert(projects).values({
-      ...project,
-      status: project.status || 'processing',
-    }).returning();
-    return newProject;
+    try {
+      const [newProject] = await db.insert(projects).values({
+        ...project,
+        status: project.status || 'processing',
+      }).returning();
+      return newProject;
+    } catch (error) {
+      console.error('Error creating project:', error);
+      throw new Error('Failed to create project');
+    }
   }
 
   async getProject(id: string): Promise<Project | undefined> {
-    const [project] = await db.select().from(projects).where(eq(projects.id, id));
-    return project;
+    try {
+      const [project] = await db.select().from(projects).where(eq(projects.id, id));
+      return project;
+    } catch (error) {
+      console.error('Error getting project:', error);
+      throw new Error('Failed to get project');
+    }
   }
 
   async getProjects(): Promise<Project[]> {
-    return await db.select().from(projects).orderBy(desc(projects.createdAt));
+    try {
+      return await db.select().from(projects).orderBy(desc(projects.createdAt));
+    } catch (error) {
+      console.error('Error getting projects:', error);
+      throw new Error('Failed to get projects');
+    }
   }
 
   async updateProject(id: string, updates: Partial<Project>): Promise<Project | undefined> {

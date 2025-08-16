@@ -1,6 +1,74 @@
 import { useState, useCallback } from 'react';
-import { fortressScanner, type ScanResult, type ScanOptions } from '../../../server/services/fortress-elite-scanner';
-import { threatIntelligence, type ThreatAssessment } from '../../../server/services/threat-intelligence';
+
+// Import only type definitions from shared schema
+export interface ScanResult {
+  scanId: string;
+  timestamp: Date;
+  status: 'PASS' | 'REVIEW' | 'FAIL' | 'INCONCLUSIVE';
+  overallScore: number;
+  threatsFound: SecurityThreat[];
+  filesScanned: number;
+  scanDuration: number;
+  riskLevel: 'MINIMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  compliance: {
+    nist: boolean;
+    iso27001: boolean;
+    owasp: boolean;
+  };
+  metadata: {
+    slitherResults?: any;
+    mythrilResults?: any;
+    customHeuristics: Record<string, any>;
+  };
+}
+
+export interface SecurityThreat {
+  id: string;
+  timestamp: Date;
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  category: 'VULNERABILITY' | 'MALWARE' | 'SUSPICIOUS' | 'POLICY_VIOLATION';
+  title: string;
+  description: string;
+  evidence: string[];
+  location: {
+    file?: string;
+    line?: number;
+    function?: string;
+  };
+  recommendation: string;
+  threatScore: number;
+  cvssScore?: number;
+  attackVector?: string[];
+  mitigationSteps: string[];
+}
+
+export interface ScanOptions {
+  enableSlither?: boolean;
+  enableMythril?: boolean;
+  enableDeepScan?: boolean;
+  timeout?: number;
+  scanMode: 'FAST' | 'COMPREHENSIVE' | 'MILITARY_GRADE';
+  targetLanguages?: string[];
+  rulesets?: string[];
+}
+
+export interface ThreatAssessment {
+  id: string;
+  timestamp: Date;
+  overallRisk: 'MINIMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  riskScore: number;
+  threats: Array<{
+    id: string;
+    type: string;
+    severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+    description: string;
+    confidence: number;
+    indicators: string[];
+    mitigations: string[];
+  }>;
+  sources: string[];
+  recommendations: string[];
+}
 
 export interface EnhancedSecurityResult {
   scanId: string;
@@ -76,16 +144,28 @@ export function useEnhancedSecurityScan() {
       currentPhase = 'Running Fortress Elite military-grade analysis...';
       setScanProgress(prev => ({ ...prev, phase: currentPhase, progress: 20 }));
       
-      const fortressResults = await fortressScanner.performSecurityScan(
-        codeContent, 
-        projectPath, 
-        {
-          ...options,
-          enableSlither: true,
-          enableMythril: true,
-          enableDeepScan: true
-        }
-      );
+      const fortressResponse = await fetch('/api/security/fortress-scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          codeContent,
+          projectPath,
+          options: {
+            ...options,
+            enableSlither: true,
+            enableMythril: true,
+            enableDeepScan: true
+          }
+        }),
+      });
+
+      if (!fortressResponse.ok) {
+        throw new Error(`Fortress scan failed: ${fortressResponse.statusText}`);
+      }
+
+      const fortressResults: ScanResult = await fortressResponse.json();
 
       // Phase 3: Threat Intelligence Analysis
       currentPhase = 'Analyzing against threat intelligence databases...';
@@ -96,10 +176,23 @@ export function useEnhancedSecurityScan() {
         threatsFound: fortressResults.threatsFound.length 
       }));
 
-      const threatIntelResults = await threatIntelligence.assessThreat(codeContent, {
-        projectPath,
-        fortressResults
+      const threatIntelResponse = await fetch('/api/security/threat-intel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          codeContent,
+          projectPath,
+          fortressResults
+        }),
       });
+
+      if (!threatIntelResponse.ok) {
+        throw new Error(`Threat intelligence analysis failed: ${threatIntelResponse.statusText}`);
+      }
+
+      const threatIntelResults: ThreatAssessment = await threatIntelResponse.json();
 
       // Phase 4: Combined Analysis
       currentPhase = 'Performing combined threat correlation...';

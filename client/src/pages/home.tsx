@@ -35,6 +35,8 @@ export default function Home() {
 
   const { isHealthy, isOnline, healthError } = useConnectionHealth();
   const { isScanning: isSecurityScanning, scanResult, realtimeStats, performScan } = useSecurityScan();
+  const { isAnalyzing, analysisResult, progress: analysisProgress, currentStep, performTriAnalysis, clearResults } = useTriAnalysis();
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   // Fetch recent projects
   const { data: projects = [], error: projectsError, isLoading: projectsLoading } = useQuery<Project[]>({

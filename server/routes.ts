@@ -7,7 +7,10 @@ import { securityRoutes } from "./routes/security";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
+  // Register security routes first (they have their own middleware)
+  app.use("/api/security", securityRoutes);
+
   // Generate content with AI
   app.post("/api/generate", async (req, res) => {
     try {

@@ -332,11 +332,12 @@ export default function Home() {
                 <Button
                   onClick={() => handleGenerate('code')}
                   disabled={isGenerating || !prompt.trim()}
-                  className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
+                  className="cyber-border rounded-lg hover:animate-glow-pulse smooth-transition h-auto p-0 animate-float"
                   data-testid="button-generate-code"
+                  style={{ animationDelay: '0.1s' }}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-code text-cyber-green text-xl mb-2 block"></i>
+                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full smooth-transition">
+                    <i className="fas fa-code text-cyber-green text-xl mb-2 block smooth-transition"></i>
                     <span className="text-xs font-orbitron">Generate Code</span>
                   </div>
                 </Button>

@@ -56,6 +56,8 @@ html {
   --cyber-red: hsl(348 100% 63%);
   --cyber-cyan: hsl(180 100% 50%);
   --cyber-purple: hsl(280 100% 50%);
+  --light-blue: hsl(210 80% 65%);
+  --dark-blue: hsl(220 90% 45%);
   --dark-bg: hsl(0 0% 4%);
   --dark-panel: hsl(0 0% 10%);
   --dark-card: hsl(0 0% 16%);
@@ -131,7 +133,7 @@ html {
 
 @layer components {
   .cyber-border {
-    background: linear-gradient(45deg, transparent, var(--cyber-green), transparent);
+    background: linear-gradient(45deg, var(--light-blue), var(--dark-blue), var(--light-blue));
     padding: 1px;
   }
 
@@ -253,6 +255,14 @@ html {
   .text-cyber-purple {
     color: var(--cyber-purple);
   }
+
+  .text-light-blue {
+    color: var(--light-blue);
+  }
+
+  .text-dark-blue {
+    color: var(--dark-blue);
+  }
   
   .bg-cyber-green {
     background-color: var(--cyber-green);
@@ -269,6 +279,18 @@ html {
   .bg-cyber-purple {
     background-color: var(--cyber-purple);
   }
+
+  .bg-light-blue {
+    background-color: var(--light-blue);
+  }
+
+  .bg-dark-blue {
+    background-color: var(--dark-blue);
+  }
+
+  .bg-blue-gradient {
+    background: linear-gradient(135deg, var(--light-blue), var(--dark-blue));
+  }
   
   .border-cyber-green {
     border-color: var(--cyber-green);
@@ -284,6 +306,14 @@ html {
   
   .border-cyber-purple {
     border-color: var(--cyber-purple);
+  }
+
+  .border-light-blue {
+    border-color: var(--light-blue);
+  }
+
+  .border-dark-blue {
+    border-color: var(--dark-blue);
   }
 
   .animate-glow-pulse {

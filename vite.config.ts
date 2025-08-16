@@ -6,7 +6,8 @@ import path from "path";
 export default defineConfig({
   plugins: [
     react(),
-    // runtimeErrorOverlay(), // Temporarily disabled due to ErrorOverlay conflicts
+// runtimeErrorOverlay(), // Temporarily disabled due to conflict with Vite error overlay
+
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [

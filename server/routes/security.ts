@@ -61,6 +61,91 @@ const requirePremium = (req: Request, res: Response, next: any) => {
 };
 
 /**
+ * POST /api/security/fortress-scan
+ * Fortress Elite Security Scanner endpoint
+ * Used by the enhanced security scan hook
+ */
+router.post('/fortress-scan',
+  scanRateLimit,
+  [
+    body('codeContent').isString().isLength({ min: 1, max: 1000000 }).withMessage('Code content required (max 1MB)'),
+    body('projectPath').optional().isString().withMessage('Project path must be string'),
+    body('options').optional().isObject().withMessage('Options must be object'),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { codeContent, projectPath = '/tmp/scan', options = {} } = req.body;
+
+      // Perform fortress scan
+      const fortressResult = await fortressScanner.performSecurityScan(
+        codeContent,
+        projectPath,
+        {
+          scanMode: 'COMPREHENSIVE',
+          enableSlither: true,
+          enableMythril: true,
+          enableDeepScan: true,
+          ...options
+        }
+      );
+
+      res.json(fortressResult);
+
+    } catch (error) {
+      console.error('Fortress scan error:', error);
+      res.status(500).json({
+        error: 'Fortress scan failed',
+        message: error.message
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/security/threat-intel
+ * Threat Intelligence Analysis endpoint
+ * Used by the enhanced security scan hook
+ */
+router.post('/threat-intel',
+  scanRateLimit,
+  [
+    body('codeContent').isString().isLength({ min: 1, max: 1000000 }).withMessage('Code content required (max 1MB)'),
+    body('projectPath').optional().isString().withMessage('Project path must be string'),
+    body('fortressResults').optional().isObject().withMessage('Fortress results must be object'),
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { codeContent, projectPath, fortressResults } = req.body;
+
+      // Perform threat intelligence analysis
+      const threatResult = await threatIntelligence.assessThreat(codeContent, {
+        projectPath,
+        fortressResults
+      });
+
+      res.json(threatResult);
+
+    } catch (error) {
+      console.error('Threat intel error:', error);
+      res.status(500).json({
+        error: 'Threat intelligence analysis failed',
+        message: error.message
+      });
+    }
+  }
+);
+
+/**
  * POST /api/security/scan
  * Primary security scanning endpoint
  * Revenue: $10-50 per scan depending on complexity

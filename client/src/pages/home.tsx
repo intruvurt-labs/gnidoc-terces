@@ -374,6 +374,19 @@ export default function Home() {
                     <span className="text-xs font-orbitron">Security Scan</span>
                   </div>
                 </Button>
+
+                <Button
+                  onClick={() => uploadedFiles.length > 0 && performTriAnalysis(uploadedFiles)}
+                  disabled={isAnalyzing || uploadedFiles.length === 0}
+                  className="cyber-border rounded-lg hover:animate-glow-pulse smooth-transition h-auto p-0 animate-float"
+                  data-testid="button-tri-analysis"
+                  style={{ animationDelay: '0.5s' }}
+                >
+                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full smooth-transition">
+                    <i className={`fas ${isAnalyzing ? 'fa-cog fa-spin' : 'fa-chart-line'} text-cyber-purple text-xl mb-2 block smooth-transition`}></i>
+                    <span className="text-xs font-orbitron">Tri-Analysis</span>
+                  </div>
+                </Button>
               </div>
 
               {/* Demo Button */}

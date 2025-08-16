@@ -440,6 +440,17 @@ export default function Home() {
             </div>
           </div>
 
+          {/* File Manager */}
+          <FileManager onFilesChange={setUploadedFiles} />
+
+          {/* Tri-Analysis Results */}
+          {analysisResult && (
+            <TriAnalysisResults
+              result={analysisResult}
+              onClear={clearResults}
+            />
+          )}
+
           {/* Output Panel */}
           <div className="glass-morph rounded-xl p-6">
             <div className="flex items-center justify-between mb-6">

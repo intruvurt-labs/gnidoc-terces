@@ -322,7 +322,7 @@ export default function Home() {
               </div>
 
               {/* Generation Options */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
                 <Button
                   onClick={() => handleGenerate('code')}
                   disabled={isGenerating || !prompt.trim()}

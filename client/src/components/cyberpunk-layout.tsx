@@ -31,13 +31,13 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
               <button className="cyber-border rounded-lg hover:animate-glow-pulse transition-all" data-testid="button-settings">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
                   <i className="fas fa-cog text-cyber-green"></i>
-                  <span className="text-sm">Settings</span>
+                  <span className="text-sm text-white">Settings</span>
                 </div>
               </button>
               <button className="cyber-border-red rounded-lg hover:animate-glow-pulse transition-all" data-testid="button-security-scan">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
                   <i className="fas fa-shield-alt text-cyber-red"></i>
-                  <span className="text-sm">Security Scan</span>
+                  <span className="text-sm text-white">Security Scan</span>
                 </div>
               </button>
             </div>

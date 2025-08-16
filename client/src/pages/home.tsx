@@ -7,14 +7,16 @@ import FileCard from "@/components/ui/file-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIGeneration } from "@/hooks/use-ai-generation";
+import { useToast } from "@/hooks/use-toast";
 import { type Project, type GeneratedFile } from "@shared/schema";
 import gindocLogo from "@assets/gindoc_1755279048391.png";
 
 export default function Home() {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState("Create a modern React TypeScript todo application with dark theme and local storage persistence");
   const [activeAI, setActiveAI] = useState<'gemini' | 'runway' | 'imagen'>('gemini');
   const [outputMode, setOutputMode] = useState<'code' | 'preview' | 'files'>('code');
   const [showAbout, setShowAbout] = useState(false);
+  const { toast } = useToast();
   
   const {
     isGenerating,
@@ -41,7 +43,14 @@ export default function Home() {
   });
 
   const handleGenerate = (type: 'code' | 'image' | 'video' | 'security') => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() && type !== 'security') {
+      toast({
+        title: "Input Required",
+        description: "Please enter a prompt to generate content",
+        variant: "destructive",
+      });
+      return;
+    }
 
     switch (type) {
       case 'code':
@@ -60,6 +69,52 @@ export default function Home() {
       case 'security':
         if (latestProject?.result && typeof latestProject.result === 'object' && 'code' in latestProject.result) {
           performSecurityScan(String(latestProject.result.code));
+        } else {
+          // Use demo code for security scan if no project exists
+          const demoCode = `
+// Demo React Component for Security Analysis
+import React, { useState } from 'react';
+
+const DemoComponent = () => {
+  const [userInput, setUserInput] = useState('');
+  const [password, setPassword] = useState('');
+
+  // Security Issue 1: XSS vulnerability
+  const handleSubmit = () => {
+    document.getElementById('output').innerHTML = userInput;
+  };
+
+  // Security Issue 2: Weak password validation
+  const validatePassword = (pwd) => {
+    return pwd.length > 3; // Too weak
+  };
+
+  // Security Issue 3: Potential code injection
+  const processInput = (input) => {
+    return eval('return ' + input);
+  };
+
+  return (
+    <div>
+      <input
+        value={userInput}
+        onChange={(e) => setUserInput(e.target.value)}
+        placeholder="Enter some text..."
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button onClick={handleSubmit}>Submit</button>
+      <div id="output"></div>
+    </div>
+  );
+};
+
+export default DemoComponent;`;
+          performSecurityScan(demoCode);
         }
         break;
     }
@@ -123,7 +178,7 @@ export default function Home() {
               variant="ghost"
               size="sm"
               onClick={() => setShowAbout(false)}
-              className="text-cyber-red hover:text-cyber-cyan"
+              className="text-white hover:text-white"
               data-testid="button-close-about"
             >
               ✕
@@ -176,7 +231,7 @@ export default function Home() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAbout(!showAbout)}
-                  className="px-3 py-1 text-xs font-fira text-cyber-cyan hover:text-cyber-green"
+                  className="px-3 py-1 text-xs font-fira text-white hover:text-white"
                   data-testid="button-about"
                 >
                   ABOUT
@@ -185,7 +240,7 @@ export default function Home() {
                   variant={activeAI === 'gemini' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('gemini')}
-                  className="px-3 py-1 text-xs font-fira bg-cyber-green/20 border-cyber-green text-cyber-green hover:bg-cyber-green/30"
+                  className="px-3 py-1 text-xs font-fira bg-cyber-green/20 border-cyber-green text-white hover:bg-cyber-green/30"
                   data-testid="button-ai-gemini"
                 >
                   GEMINI
@@ -194,7 +249,7 @@ export default function Home() {
                   variant={activeAI === 'runway' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('runway')}
-                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-red hover:text-cyber-red"
+                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-white hover:border-cyber-red hover:text-white"
                   data-testid="button-ai-runway"
                 >
                   RUNWAY
@@ -203,7 +258,7 @@ export default function Home() {
                   variant={activeAI === 'imagen' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setActiveAI('imagen')}
-                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-purple hover:text-cyber-purple"
+                  className="px-3 py-1 text-xs font-fira bg-dark-card border-gray-600 text-white hover:border-cyber-purple hover:text-white"
                   data-testid="button-ai-imagen"
                 >
                   IMAGEN
@@ -258,10 +313,13 @@ export default function Home() {
                   disabled={isGenerating || !prompt.trim()}
                   className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                   data-testid="button-generate-code"
+                  title={!prompt.trim() ? "Enter a prompt to generate code" : "Generate code with AI"}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-code text-cyber-green text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">Generate Code</span>
+                  <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-code text-white text-xl mb-2 block"></i>
+                    <span className="text-xs font-orbitron text-white">
+                      {!prompt.trim() ? "Enter Prompt" : "Generate Code"}
+                    </span>
                   </div>
                 </Button>
                 
@@ -270,42 +328,55 @@ export default function Home() {
                   disabled={isGenerating || !prompt.trim()}
                   className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                   data-testid="button-generate-image"
+                  title={!prompt.trim() ? "Enter a prompt to create images" : "Create image with AI"}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-image text-cyber-cyan text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">Create Image</span>
+                  <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-image text-white text-xl mb-2 block"></i>
+                    <span className="text-xs font-orbitron text-white">
+                      {!prompt.trim() ? "Enter Prompt" : "Create Image"}
+                    </span>
                   </div>
                 </Button>
-                
+
                 <Button
                   onClick={() => handleGenerate('video')}
                   disabled={isGenerating || !prompt.trim()}
                   className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                   data-testid="button-generate-video"
+                  title={!prompt.trim() ? "Enter a prompt to generate videos" : "Generate video with AI"}
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-video text-cyber-purple text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">Generate Video</span>
+                  <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-video text-white text-xl mb-2 block"></i>
+                    <span className="text-xs font-orbitron text-white">
+                      {!prompt.trim() ? "Enter Prompt" : "Generate Video"}
+                    </span>
                   </div>
                 </Button>
                 
                 <Button
                   onClick={() => handleGenerate('security')}
                   disabled={isGenerating || !latestProject?.result || !('code' in (latestProject.result as any))}
-                  className="cyber-border-red rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
+                  className="cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                   data-testid="button-security-scan"
                 >
-                  <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
-                    <i className="fas fa-shield-alt text-cyber-red text-xl mb-2 block"></i>
-                    <span className="text-xs font-orbitron">Security Scan</span>
+                  <div className="bg-blue-gradient p-3 rounded-lg text-center w-full">
+                    <i className="fas fa-shield-alt text-white text-xl mb-2 block"></i>
+                    <span className="text-xs font-orbitron text-white">Security Scan</span>
                   </div>
                 </Button>
+              </div>
+
+              {/* Instructions */}
+              <div className="bg-cyber-green/10 border border-cyber-green/30 rounded-lg p-3 text-center">
+                <p className="text-xs text-cyber-green font-orbitron">
+                  ✨ Ready to generate! Modify the prompt above and click any generation button to start.
+                </p>
               </div>
 
               {/* Demo Button */}
               <Button
                 onClick={() => fetch('/api/demo', { method: 'POST' }).then(() => window.location.reload())}
-                className="w-full bg-cyber-cyan/20 text-cyber-cyan hover:bg-cyber-cyan/30 font-orbitron font-bold py-2 text-sm border border-cyber-cyan/50 hover:border-cyber-cyan transition-all duration-300"
+                className="w-full bg-cyber-cyan/20 text-white hover:bg-cyber-cyan/30 font-orbitron font-bold py-2 text-sm border border-cyber-cyan/50 hover:border-cyber-cyan transition-all duration-300"
                 data-testid="button-demo"
               >
                 <i className="fas fa-play mr-2"></i>
@@ -318,11 +389,12 @@ export default function Home() {
                 disabled={isGenerating || !prompt.trim()}
                 className="w-full cyber-border rounded-lg hover:animate-glow-pulse transition-all h-auto p-0"
                 data-testid="button-execute-generation"
+                title={!prompt.trim() ? "Enter a prompt to start generation" : "Start AI generation"}
               >
-                <div className="bg-dark-panel py-4 rounded-lg w-full">
-                  <span className="font-orbitron font-bold text-lg text-cyber-green">
+                <div className="bg-blue-gradient py-4 rounded-lg w-full">
+                  <span className="font-orbitron font-bold text-lg text-white">
                     <i className="fas fa-rocket mr-2"></i>
-                    {isGenerating ? 'GENERATING...' : 'EXECUTE GENERATION'}
+                    {isGenerating ? 'GENERATING...' : !prompt.trim() ? 'ENTER PROMPT TO START' : 'EXECUTE GENERATION'}
                   </span>
                 </div>
               </Button>
@@ -341,7 +413,7 @@ export default function Home() {
                   variant={outputMode === 'code' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('code')}
-                  className="px-3 py-1 text-xs bg-cyber-green/20 border-cyber-green text-cyber-green"
+                  className="px-3 py-1 text-xs bg-cyber-green/20 border-cyber-green text-white"
                   data-testid="button-output-code"
                 >
                   CODE
@@ -350,7 +422,7 @@ export default function Home() {
                   variant={outputMode === 'preview' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('preview')}
-                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-cyan hover:text-cyber-cyan"
+                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-white hover:border-cyber-cyan hover:text-white"
                   data-testid="button-output-preview"
                 >
                   PREVIEW
@@ -359,7 +431,7 @@ export default function Home() {
                   variant={outputMode === 'files' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setOutputMode('files')}
-                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-gray-400 hover:border-cyber-purple hover:text-cyber-purple"
+                  className="px-3 py-1 text-xs bg-dark-card border-gray-600 text-white hover:border-cyber-purple hover:text-white"
                   data-testid="button-output-files"
                 >
                   FILES
@@ -505,12 +577,42 @@ export default function Home() {
             </div>
 
             <Button
-              onClick={() => handleGenerate('security')}
-              disabled={isGenerating || !latestProject?.result || !('code' in (latestProject.result as any))}
-              className="w-full mt-4 cyber-border-red rounded-lg hover:animate-glow-pulse transition-all"
+              onClick={() => {
+                if (latestProject?.result && 'code' in (latestProject.result as any)) {
+                  handleGenerate('security');
+                } else {
+                  // Generate a security scan for demo code
+                  const demoCode = `
+// Demo React Component for Security Scan
+import React, { useState } from 'react';
+
+const DemoComponent = () => {
+  const [userInput, setUserInput] = useState('');
+
+  // Potential security issue: no input validation
+  const handleSubmit = () => {
+    document.innerHTML = userInput; // XSS vulnerability
+    eval(userInput); // Code injection vulnerability
+  };
+
+  return (
+    <div>
+      <input value={userInput} onChange={(e) => setUserInput(e.target.value)} />
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+};
+
+export default DemoComponent;`;
+
+                  handleGenerate('security');
+                }
+              }}
+              disabled={isGenerating}
+              className="w-full mt-4 cyber-border rounded-lg hover:animate-glow-pulse transition-all"
               data-testid="button-full-security-scan"
             >
-              <span className="font-orbitron text-cyber-red">
+              <span className="font-orbitron text-white">
                 <i className="fas fa-search mr-2"></i>
                 FULL SCAN
               </span>

@@ -22,35 +22,51 @@ export function useAIGeneration() {
 
   const generateMutation = useMutation({
     mutationFn: async (request: AIGenerationRequest) => {
-      setState({ isGenerating: true, progress: 10, status: "Initializing AI..." });
-      
-      // Simulate progress updates
+      setState({ isGenerating: true, progress: 5, status: "Initializing AI..." });
+
+      // Realistic progress updates with smoother animation
+      let currentProgress = 5;
       const progressInterval = setInterval(() => {
-        setState(prev => ({
-          ...prev,
-          progress: Math.min(prev.progress + Math.random() * 10, 90),
-          status: prev.progress < 30 ? "Analyzing prompt..." :
-                  prev.progress < 60 ? "Processing with AI..." :
-                  "Generating output...",
-        }));
-      }, 500);
+        setState(prev => {
+          const increment = Math.random() * 8 + 2; // 2-10% increments
+          currentProgress = Math.min(prev.progress + increment, 85);
+
+          let newStatus = prev.status;
+          if (currentProgress < 20) newStatus = "Connecting to AI models...";
+          else if (currentProgress < 40) newStatus = "Analyzing prompt...";
+          else if (currentProgress < 65) newStatus = "Processing with AI...";
+          else newStatus = "Generating output...";
+
+          return {
+            ...prev,
+            progress: currentProgress,
+            status: newStatus,
+          };
+        });
+      }, 300); // Faster updates for smoother animation
 
       try {
         const response = await apiRequest("POST", "/api/generate", request);
         clearInterval(progressInterval);
-        
-        setState({ isGenerating: false, progress: 100, status: "Completed" });
-        
+
+        // Animate to completion
+        setState(prev => ({ ...prev, progress: 95, status: "Finalizing..." }));
+
         const result = await response.json();
-        
+
         if (result.status === 'error') {
-          throw new Error(result.error);
+          throw new Error(result.error || "Generation failed");
         }
-        
+
+        // Complete animation
+        setTimeout(() => {
+          setState({ isGenerating: false, progress: 100, status: "Completed!" });
+        }, 200);
+
         return result;
       } catch (error) {
         clearInterval(progressInterval);
-        setState({ isGenerating: false, progress: 0, status: "Error" });
+        setState({ isGenerating: false, progress: 0, status: "Error occurred" });
         throw error;
       }
     },

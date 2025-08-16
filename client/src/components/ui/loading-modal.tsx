@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface LoadingModalProps {
   isOpen: boolean;
@@ -10,6 +10,9 @@ export default function LoadingModal({ isOpen, progress = 0, status = "AI PROCES
   return (
     <Dialog open={isOpen}>
       <DialogContent className="glass-morph border-cyber-green/30 max-w-md" data-testid="loading-modal">
+        <DialogHeader>
+          <DialogTitle className="sr-only">AI Generation Progress</DialogTitle>
+        </DialogHeader>
         <div className="text-center p-6">
           <div className="relative mb-6">
             <div className="w-16 h-16 border-4 border-cyber-green/20 border-t-cyber-green rounded-full animate-spin mx-auto"></div>

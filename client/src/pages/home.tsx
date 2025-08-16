@@ -567,36 +567,98 @@ export default function Home() {
           </div>
 
           {/* Security Monitor */}
-          <div className="glass-morph rounded-xl p-6">
+          <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition animate-float" style={{ animationDelay: '0.7s' }}>
             <h3 className="text-lg font-orbitron font-bold text-cyber-red mb-4">
               <i className="fas fa-shield-alt mr-2"></i>
               Security Monitor
+              {isSecurityScanning && <i className="fas fa-spinner fa-spin ml-2 text-cyber-yellow"></i>}
             </h3>
-            
+
+            {isSecurityScanning && (
+              <div className="mb-4 space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-cyber-cyan">Scanning: {realtimeStats.currentFile}</span>
+                  <span className="text-cyber-green">{Math.round(realtimeStats.progress)}%</span>
+                </div>
+                <div className="w-full bg-dark-card rounded-full h-2">
+                  <div
+                    className="bg-cyber-green h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${realtimeStats.progress}%` }}
+                  ></div>
+                </div>
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>Files: {realtimeStats.filesScanned}/5</span>
+                  <span>Threats: {realtimeStats.threatsFound}</span>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-300">Blockchain Security</span>
-                <span className="text-xs text-cyber-green bg-cyber-green/20 px-2 py-1 rounded" data-testid="text-blockchain-security">SECURE</span>
+                <span className={`text-xs px-2 py-1 rounded ${
+                  scanResult?.blockchainSecurity === 'SECURE' ? 'text-cyber-green bg-cyber-green/20' :
+                  scanResult?.blockchainSecurity?.includes('CRITICAL') ? 'text-cyber-red bg-cyber-red/20' :
+                  scanResult?.blockchainSecurity?.includes('HIGH') ? 'text-cyber-red bg-cyber-red/20' :
+                  scanResult?.blockchainSecurity?.includes('MEDIUM') ? 'text-cyber-yellow bg-cyber-yellow/20' :
+                  scanResult?.blockchainSecurity?.includes('LOW') ? 'text-cyber-cyan bg-cyber-cyan/20' :
+                  'text-cyber-green bg-cyber-green/20'
+                }`} data-testid="text-blockchain-security">
+                  {scanResult?.blockchainSecurity || 'SECURE'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-300">Code Quality</span>
-                <span className="text-xs text-cyber-green bg-cyber-green/20 px-2 py-1 rounded" data-testid="text-code-quality">A+</span>
+                <span className={`text-xs px-2 py-1 rounded ${
+                  scanResult?.codeQuality === 'A+' || scanResult?.codeQuality === 'A' ? 'text-cyber-green bg-cyber-green/20' :
+                  scanResult?.codeQuality === 'B' ? 'text-cyber-cyan bg-cyber-cyan/20' :
+                  scanResult?.codeQuality === 'C' ? 'text-cyber-yellow bg-cyber-yellow/20' :
+                  scanResult?.codeQuality === 'D' || scanResult?.codeQuality === 'F' ? 'text-cyber-red bg-cyber-red/20' :
+                  'text-cyber-green bg-cyber-green/20'
+                }`} data-testid="text-code-quality">
+                  {scanResult?.codeQuality || 'A+'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-300">Vulnerabilities</span>
-                <span className="text-xs text-cyber-green bg-cyber-green/20 px-2 py-1 rounded" data-testid="text-vulnerabilities">0 FOUND</span>
+                <span className={`text-xs px-2 py-1 rounded ${
+                  !scanResult?.vulnerabilities || scanResult.vulnerabilities === 0 ? 'text-cyber-green bg-cyber-green/20' :
+                  scanResult.vulnerabilities < 3 ? 'text-cyber-yellow bg-cyber-yellow/20' :
+                  'text-cyber-red bg-cyber-red/20'
+                }`} data-testid="text-vulnerabilities">
+                  {scanResult?.vulnerabilities || 0} FOUND
+                </span>
               </div>
+
+              {scanResult && scanResult.issues.length > 0 && (
+                <div className="mt-3 bg-dark-card rounded p-3 max-h-32 overflow-y-auto">
+                  <div className="text-xs text-cyber-red mb-2 font-orbitron">RECENT FINDINGS:</div>
+                  {scanResult.issues.slice(0, 3).map((issue, index) => (
+                    <div key={issue.id} className="text-xs mb-1 p-1 bg-dark-panel rounded">
+                      <div className={`font-bold ${
+                        issue.severity === 'critical' ? 'text-cyber-red' :
+                        issue.severity === 'high' ? 'text-cyber-red' :
+                        issue.severity === 'medium' ? 'text-cyber-yellow' :
+                        'text-cyber-cyan'
+                      }`}>
+                        {issue.title} ({issue.severity.toUpperCase()})
+                      </div>
+                      <div className="text-gray-400">{issue.location}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <Button
               onClick={() => handleGenerate('security')}
-              disabled={isGenerating || !latestProject?.result || !('code' in (latestProject.result as any))}
-              className="w-full mt-4 cyber-border-red rounded-lg hover:animate-glow-pulse transition-all"
+              disabled={isSecurityScanning || (!latestProject?.result && !prompt.trim())}
+              className="w-full mt-4 cyber-border-red rounded-lg hover:animate-glow-pulse smooth-transition"
               data-testid="button-full-security-scan"
             >
               <span className="font-orbitron text-cyber-red">
-                <i className="fas fa-search mr-2"></i>
-                FULL SCAN
+                <i className={`${isSecurityScanning ? 'fas fa-spinner fa-spin' : 'fas fa-search'} mr-2`}></i>
+                {isSecurityScanning ? 'SCANNING...' : 'FULL SCAN'}
               </span>
             </Button>
           </div>

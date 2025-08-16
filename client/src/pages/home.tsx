@@ -115,20 +115,6 @@ export default function Home() {
     return { status: 'STANDBY', color: 'text-gray-500' };
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-    
-    // Handle file upload logic here
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setPrompt(prev => prev + `\n\nFile: ${file.name}\n${content}`);
-      };
-      reader.readAsText(file);
-    });
-  };
 
   return (
     <CyberpunkLayout>

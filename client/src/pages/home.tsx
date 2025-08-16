@@ -75,7 +75,9 @@ export default function Home() {
         break;
       case 'security':
         if (latestProject?.result && typeof latestProject.result === 'object' && 'code' in latestProject.result) {
-          performSecurityScan(String(latestProject.result.code));
+          performScan(String(latestProject.result.code));
+        } else if (prompt.trim()) {
+          performScan(prompt);
         }
         break;
     }

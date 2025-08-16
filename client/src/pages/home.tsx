@@ -294,7 +294,7 @@ export default function Home() {
                   placeholder="Describe your complete application concept, upload code files, or paste existing code for analysis and enhancement..."
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="w-full h-40 bg-dark-card border border-cyber-green/30 rounded-lg p-4 text-white placeholder-gray-500 font-fira text-sm focus:border-cyber-green focus:outline-none focus:ring-2 focus:ring-cyber-green/20 resize-none"
+                  className="w-full h-40 bg-gray-800 border border-gray-600 rounded-lg p-4 text-white placeholder-gray-400 font-fira text-sm focus:border-cyber-green focus:outline-none focus:ring-2 focus:ring-cyber-green/20 resize-none smooth-transition"
                   maxLength={50000}
                   data-testid="input-prompt"
                 />

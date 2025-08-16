@@ -16,7 +16,7 @@ export default function Home() {
   const [activeAI, setActiveAI] = useState<'gemini' | 'runway' | 'imagen'>('gemini');
   const [outputMode, setOutputMode] = useState<'code' | 'preview' | 'files'>('code');
   const [showAbout, setShowAbout] = useState(false);
-  
+
   const {
     isGenerating,
     progress,
@@ -27,6 +27,8 @@ export default function Home() {
     performSecurityScan,
     result,
   } = useAIGeneration();
+
+  const { isHealthy, isOnline, healthError } = useConnectionHealth();
 
   // Fetch recent projects
   const { data: projects = [], error: projectsError, isLoading: projectsLoading } = useQuery<Project[]>({

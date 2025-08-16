@@ -4,6 +4,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Performance optimizations */
+* {
+  will-change: auto;
+  transform: translateZ(0);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --background: hsl(0 0% 4%);
   --foreground: hsl(0 0% 100%);

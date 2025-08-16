@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { aiOrchestrator } from "./services/ai-orchestrator";
 import { aiGenerationRequestSchema } from "@shared/schema";
+import { securityRoutes } from "./routes/security";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {

@@ -19,7 +19,7 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
               <div className="cyber-border rounded-lg">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-3">
                   <img src={gindocLogo} alt="GINDOC" className="w-8 h-8 rounded" />
-                  <h1 className="text-2xl font-orbitron font-bold text-cyber-green" data-testid="logo-title">GINDOC</h1>
+                  <h1 className="text-2xl font-orbitron font-bold animated-rainbow-text" data-testid="logo-title">GINDOC</h1>
                 </div>
               </div>
               <div className="flex flex-col">

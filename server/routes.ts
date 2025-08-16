@@ -3,10 +3,14 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { aiOrchestrator } from "./services/ai-orchestrator";
 import { aiGenerationRequestSchema } from "@shared/schema";
+import { securityRoutes } from "./routes/security";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
+  // Register security routes first (they have their own middleware)
+  app.use("/api/security", securityRoutes);
+
   // Generate content with AI
   app.post("/api/generate", async (req, res) => {
     try {
@@ -388,13 +392,42 @@ export default App;`
 
   // Health check
   app.get("/api/health", (req, res) => {
-    res.json({ 
-      status: "healthy", 
+    res.json({
+      status: "healthy",
       timestamp: new Date().toISOString(),
       aiServices: {
         gemini: process.env.GOOGLE_API_KEY ? "configured" : "missing",
         runway: "simulated",
         imagen: "integrated"
+      },
+      database: {
+        primary: "PostgreSQL (Neon)",
+        realtime: "GindocDB (Firebase Clone)",
+        status: "operational"
+      }
+    });
+  });
+
+  // GindocDB Demo endpoint
+  app.get("/api/gindocdb/demo", (req, res) => {
+    res.json({
+      message: "GindocDB - Firebase Clone",
+      features: [
+        "Real-time WebSocket connections",
+        "Document-based storage",
+        "Live data synchronization",
+        "Real-time collaboration",
+        "Offline-first capabilities",
+        "Automatic conflict resolution"
+      ],
+      endpoints: {
+        websocket: "/gindocdb",
+        collections: ["projects", "files", "users", "sessions"],
+        operations: ["add", "update", "delete", "get", "query", "subscribe"]
+      },
+      example: {
+        connect: "ws://localhost:5000/gindocdb",
+        usage: "Use the GindocDB client library for seamless real-time features"
       }
     });
   });

@@ -29,16 +29,30 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
-      credentials: "include",
-    });
+    try {
+      const url = queryKey.join("/") as string;
+      console.log(`Fetching: ${url}`); // Debug logging
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      const res = await fetch(url, {
+        credentials: "include",
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      const data = await res.json();
+      console.log(`Success: ${url}`, data); // Debug logging
+      return data;
+    } catch (error) {
+      console.error(`Fetch error for ${queryKey.join("/")}:`, error);
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({
@@ -47,11 +61,30 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: (failureCount, error) => {
+        // Don't retry on 4xx errors except 408 (timeout)
+        if (error && typeof error === 'object' && 'message' in error) {
+          const message = error.message as string;
+          if (message.includes('4') && !message.includes('408')) {
+            return false;
+          }
+        }
+        return failureCount < 3;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },
     mutations: {
-      retry: false,
+      retry: (failureCount, error) => {
+        // Retry mutations only on network errors
+        if (error && typeof error === 'object' && 'message' in error) {
+          const message = error.message as string;
+          if (message.includes('fetch')) {
+            return failureCount < 2;
+          }
+        }
+        return false;
+      },
     },
   },
 });

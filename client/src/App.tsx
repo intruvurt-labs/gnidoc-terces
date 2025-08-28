@@ -8,11 +8,13 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import CyberpunkLayout from "@/components/cyberpunk-layout";
 import NotFound from "@/pages/not-found";
 import EnhancedHome from "@/pages/enhanced-home";
+import Home from "@/pages/home";
 
 function Router() {
   return (
     <CyberpunkLayout>
       <Switch>
+        <Route path="/" component={Home} />
         <Route path="/" component={EnhancedHome} />
         <Route component={NotFound} />
       </Switch>

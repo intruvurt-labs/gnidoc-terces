@@ -125,6 +125,18 @@ html {
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
   }
 
+  .logo-face {
+    width: 56px;
+    height: 56px;
+    background-image: url('https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=400');
+    background-repeat: no-repeat;
+    background-size: 140% auto;
+    background-position: center 35%;
+    border-radius: 12px;
+    display: block;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  }
+
   .font-orbitron {
     font-family: var(--font-orbitron);
   }

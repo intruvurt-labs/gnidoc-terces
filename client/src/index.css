@@ -52,12 +52,12 @@ html {
   --font-mono: 'Fira Code', monospace;
   --font-orbitron: 'Orbitron', monospace;
   --radius: 0.5rem;
-  --cyber-green: hsl(120 100% 50%);
+  --cyber-green: hsl(48 100% 50%);
   --cyber-red: hsl(348 100% 63%);
-  --cyber-cyan: hsl(180 100% 50%);
-  --cyber-purple: hsl(280 100% 50%);
-  --light-blue: hsl(210 80% 65%);
-  --dark-blue: hsl(220 90% 45%);
+  --cyber-cyan: hsl(25 100% 55%);
+  --cyber-purple: hsl(320 85% 55%);
+  --light-blue: hsl(35 95% 60%);
+  --dark-blue: hsl(15 90% 50%);
   --dark-bg: hsl(0 0% 4%);
   --dark-panel: hsl(0 0% 10%);
   --dark-card: hsl(0 0% 16%);
@@ -106,15 +106,23 @@ html {
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    background-image:
-      linear-gradient(90deg, rgba(0,255,65,0.1) 1px, transparent 1px),
-      linear-gradient(rgba(0,255,65,0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: none;
     cursor: url('/cheese-cursor.svg') 16 16, auto;
     /* Performance optimizations */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  .logo-wordmark {
+    width: 160px;
+    height: 32px;
+    background-image: url('https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=800');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center bottom;
+    display: block;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
   }
 
   .font-orbitron {

@@ -15,7 +15,6 @@ import TriAnalysisResults from "@/components/tri-analysis-results";
 import { useToast } from "@/hooks/use-toast";
 
 import { type Project, type GeneratedFile } from "@shared/schema";
-import gindocLogo from "@assets/gindoc_1755279048391.png";
 
 export default function Home() {
   const [prompt, setPrompt] = useState(

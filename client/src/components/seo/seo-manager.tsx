@@ -33,7 +33,7 @@ export function SEOManager({
     "AI automation",
     "intelligent analysis"
   ],
-  image = "/gindoc-social-preview.jpg",
+  image = "https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=800",
   url = "https://gindoc.com",
   type = "website",
   author = "Intruvurt Labs • Doble Duche",
@@ -175,7 +175,7 @@ export function SEOManager({
           "name": "Intruvurt Labs",
           "alternateName": "GINDOC Platform",
           "url": "https://gindoc.com",
-          "logo": "https://gindoc.com/logo.png",
+          "logo": "https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=800",
           "description": "Enterprise-grade multi-AI orchestration platform with military-level security",
           "foundingDate": "2024",
           "founders": [

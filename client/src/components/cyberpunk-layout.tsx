@@ -9,8 +9,8 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
   return (
     <div className="min-h-screen bg-dark-bg text-white relative">
       {/* Scan Line Animation */}
-      <div className="fixed top-0 left-0 w-full h-0.5 bg-cyber-green opacity-50 animate-scan-line z-50"></div>
-      
+      <div className="fixed top-0 left-0 w-full h-0.5 bg-cyber-green opacity-50 animate-scan-line z-0 pointer-events-none"></div>
+
       {/* Header */}
       <header className="border-b border-cyber-green/30 bg-dark-panel/90 backdrop-blur-md sticky top-0 z-40">
         <div className="container mx-auto px-6 py-4">

@@ -283,9 +283,12 @@ export default DemoComponent;`;
         <div className="space-y-4 sm:space-y-6">
           {/* AI Status */}
           <div className="glass-morph rounded-xl p-4 sm:p-6">
-            <h3 className="text-lg font-orbitron font-bold text-cyber-green mb-4">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-green mb-2">
               <i className="fas fa-heartbeat mr-2"></i>AI Status
             </h3>
+            <div className="flex justify-center mb-4">
+              <span className="logo-face" aria-hidden />
+            </div>
             {(["gemini", "runway", "imagen"] as const).map((ai) => {
               const status = getAIStatus(ai);
               return (

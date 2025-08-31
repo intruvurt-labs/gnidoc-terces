@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import CyberpunkLayout from "@/components/cyberpunk-layout";
 import LoadingModal from "@/components/ui/loading-modal";
 import CodeEditor from "@/components/ui/code-editor";
 import FileCard from "@/components/ui/file-card";
@@ -158,22 +157,22 @@ export default DemoComponent;`;
 
   const getAIStatus = (ai: string) => {
     if (ai === activeAI && isGenerating)
-      return { status: "PROCESSING", color: "text-cyber-green animate-pulse" };
-    if (ai === "gemini") return { status: "ACTIVE", color: "text-cyber-green animate-pulse" };
-    if (ai === "imagen") return { status: "READY", color: "text-cyber-purple animate-pulse" };
+      return { status: "PROCESSING", color: "text-cyber-green" };
+    if (ai === "gemini") return { status: "ACTIVE", color: "text-cyber-green" };
+    if (ai === "imagen") return { status: "READY", color: "text-cyber-purple" };
     return { status: "STANDBY", color: "text-gray-500" };
   };
 
   return (
-    <CyberpunkLayout>
+    <>
       <LoadingModal isOpen={isGenerating} progress={progress} status={status} />
 
       {/* Tri-Analysis Loading Modal */}
       {isAnalyzing && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="glass-morph rounded-xl p-8 max-w-md w-full mx-4">
             <div className="text-center">
-              <i className="fas fa-chart-line text-cyber-purple text-4xl mb-4 animate-pulse"></i>
+              <i className="fas fa-chart-line text-cyber-purple text-4xl mb-4"></i>
               <h3 className="text-xl font-orbitron font-bold text-cyber-purple mb-2">
                 Tri-Analysis Processing
               </h3>
@@ -221,9 +220,9 @@ export default DemoComponent;`;
       )}
 
       {/* Main Grid */}
-      <div className="responsive-grid lg:grid-cols-3 animate-fade-in">
+      <div className="responsive-grid lg:grid-cols-3">
         {/* Main Control Panel */}
-        <div className="lg:col-span-2 space-y-6 animate-slide-up">
+        <div className="lg:col-span-2 space-y-6">
           {/* AI Orchestration Hub */}
           <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
             <div className="flex items-center justify-between mb-6">
@@ -263,7 +262,7 @@ export default DemoComponent;`;
                       (btn.type !== "security" && !prompt.trim()) ||
                       (btn.type === "tri" && uploadedFiles.length === 0)
                     }
-                    className="cyber-border rounded-lg hover:animate-glow-pulse h-auto p-0 animate-float"
+                    className="cyber-border rounded-lg h-auto p-0"
                     style={{ animationDelay: `${0.1 * (i + 1)}s` }}
                   >
                     <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
@@ -282,7 +281,7 @@ export default DemoComponent;`;
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4 sm:space-y-6 animate-slide-up">
+        <div className="space-y-4 sm:space-y-6">
           {/* AI Status */}
           <div className="glass-morph rounded-xl p-4 sm:p-6">
             <h3 className="text-lg font-orbitron font-bold text-cyber-green mb-4">
@@ -300,6 +299,6 @@ export default DemoComponent;`;
           </div>
         </div>
       </div>
-    </CyberpunkLayout>
+    </>
   );
 }

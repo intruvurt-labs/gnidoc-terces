@@ -140,10 +140,10 @@ export function SEOManager({
       <meta name="mobile-web-app-capable" content="yes" />
       
       {/* Favicon and Icons */}
-      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" href="https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=256" />
+      <link rel="icon" type="image/png" sizes="32x32" href="https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=32" />
+      <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=16" />
+      <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=180" />
       <link rel="manifest" href="/site.webmanifest" />
       
       {/* Canonical URL */}

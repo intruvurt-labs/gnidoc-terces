@@ -149,7 +149,7 @@ export function EnhancedHome() {
                 </Badge>
               </div>
               
-              <h1 className="text-4xl md:text-6xl font-orbitron font-bold animated-rainbow-text">
+              <h1 className="text-4xl md:text-6xl font-orbitron font-bold">
                 GINDOC PLATFORM
               </h1>
               

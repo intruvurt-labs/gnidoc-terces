@@ -283,10 +283,8 @@ export default DemoComponent;`;
               {latestProject.type === 'code' && latestProject.result && typeof latestProject.result === 'object' && 'code' in latestProject.result && (
                 <div className="space-y-3">
                   <CodeEditor
-                    value={String((latestProject.result as any).code)}
+                    code={String((latestProject.result as any).code)}
                     language="typescript"
-                    readOnly
-                    height={400}
                   />
                 </div>
               )}

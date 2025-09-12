@@ -278,8 +278,9 @@ export default DemoComponent;`;
               />
 
               {/* Generation Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 sm:gap-4">
                 {[
+                  { type: "build", icon: "fas fa-rocket", label: "Build", color: "text-cyber-yellow" },
                   { type: "code", icon: "fas fa-code", label: "Code", color: "text-cyber-green" },
                   { type: "image", icon: "fas fa-image", label: "Image", color: "text-cyber-cyan" },
                   { type: "video", icon: "fas fa-video", label: "Video", color: "text-cyber-purple" },
@@ -288,14 +289,21 @@ export default DemoComponent;`;
                 ].map((btn, i) => (
                   <Button
                     key={btn.type}
-                    onClick={() =>
-                      btn.type === "tri"
-                        ? uploadedFiles.length > 0 && performTriAnalysis(uploadedFiles)
-                        : handleGenerate(btn.type as any)
-                    }
+                    onClick={() => {
+                      if (btn.type === 'tri') {
+                        if (uploadedFiles.length > 0) performTriAnalysis(uploadedFiles);
+                        return;
+                      }
+                      if (btn.type === 'build') {
+                        handleGenerate('code');
+                        if (bestMode) { generateImage(prompt); generateVideo(prompt); }
+                        return;
+                      }
+                      handleGenerate(btn.type as any);
+                    }}
                     disabled={
                       isGenerating ||
-                      (btn.type !== "security" && !prompt.trim()) ||
+                      (btn.type !== "security" && btn.type !== 'build' && !prompt.trim()) ||
                       (btn.type === "tri" && uploadedFiles.length === 0)
                     }
                     className="cyber-border rounded-lg h-auto p-0"

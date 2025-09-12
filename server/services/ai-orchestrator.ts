@@ -294,17 +294,30 @@ export class AIOrchestrator {
           break;
 
         case 'video':
-          const videoData = await this.generateVideo(request.prompt);
-          result = { videoData };
-          
-          files.push(await storage.createFile({
-            projectId: project.id,
-            fileName: 'generated-video.mp4',
-            fileType: 'video',
-            content: videoData,
-            binaryData: null,
-            size: videoData.length,
-          }));
+          const videoRes = await this.generateVideo(request.prompt);
+          if (typeof videoRes === 'string' && videoRes.startsWith('http')) {
+            result = { videoUrl: videoRes };
+            files.push(await storage.createFile({
+              projectId: project.id,
+              fileName: 'generated-video.mp4',
+              fileType: 'video',
+              content: null,
+              binaryData: null,
+              size: 0,
+              downloadUrl: videoRes,
+            }));
+          } else {
+            const videoData = String(videoRes);
+            result = { videoData };
+            files.push(await storage.createFile({
+              projectId: project.id,
+              fileName: 'generated-video.txt',
+              fileType: 'video',
+              content: videoData,
+              binaryData: null,
+              size: videoData.length,
+            }));
+          }
           break;
 
         case 'security':

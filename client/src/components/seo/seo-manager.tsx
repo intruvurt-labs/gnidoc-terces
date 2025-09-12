@@ -34,7 +34,7 @@ export function SEOManager({
     "intelligent analysis"
   ],
   image = "https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=800",
-  url = "https://gindoc.com",
+  url = "https://intruvurt.space",
   type = "website",
   author = "Intruvurt Labs • Doble Duche",
   siteName = "GINDOC Platform",
@@ -155,12 +155,12 @@ export function SEOManager({
       {/* Preconnect for Performance */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link rel="preconnect" href="https://api.gindoc.com" />
+      <link rel="preconnect" href="https://api.intruvurt.space" />
       
       {/* DNS Prefetch */}
       <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-      <link rel="dns-prefetch" href="//api.gindoc.com" />
-      <link rel="dns-prefetch" href="//cdn.gindoc.com" />
+      <link rel="dns-prefetch" href="//api.intruvurt.space" />
+      <link rel="dns-prefetch" href="//cdn.intruvurt.space" />
       
       {/* Structured Data */}
       <script type="application/ld+json">
@@ -174,7 +174,7 @@ export function SEOManager({
           "@type": "Organization",
           "name": "Intruvurt Labs",
           "alternateName": "GINDOC Platform",
-          "url": "https://gindoc.com",
+          "url": "https://intruvurt.space",
           "logo": "https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=800",
           "description": "Enterprise-grade multi-AI orchestration platform with military-level security",
           "foundingDate": "2024",
@@ -207,7 +207,7 @@ export function SEOManager({
       <link rel="preload" href="/css/critical.css" as="style" />
       
       {/* Copyright and Legal */}
-      <meta name="copyright" content="© 2024 Intruvurt Labs • Doble Duche. All rights reserved." />
+      <meta name="copyright" content="© 2025 Intruvurt Labs • Doble Duche. All rights reserved." />
       <meta name="license" content="Enterprise License" />
       <meta name="terms-of-service" content="https://gindoc.com/terms" />
       <meta name="privacy-policy" content="https://gindoc.com/privacy" />
@@ -217,7 +217,7 @@ export function SEOManager({
 
 // SEO utility functions
 export const generateSEOMetadata = (pageType: string, data?: any) => {
-  const baseUrl = "https://gindoc.com";
+  const baseUrl = "https://intruvurt.space";
   
   const seoConfigs = {
     home: {
@@ -255,7 +255,7 @@ export function CopyrightNotice() {
     <div className="text-center text-sm text-gray-500 mt-8 p-4 border-t border-gray-200">
       <div className="space-y-2">
         <p>
-          <strong>© 2024 Intruvurt Labs • Doble Duche.</strong> All rights reserved.
+          <strong>© 2025 Intruvurt Labs • Doble Duche.</strong> All rights reserved.
         </p>
         <p>
           GINDOC™ is a trademark of Intruvurt Labs. Enterprise License.

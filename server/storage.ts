@@ -1,5 +1,6 @@
 import { type User, type InsertUser, type Project, type InsertProject, type GeneratedFile, type InsertFile, type SecurityScan, type InsertSecurityScan } from "@shared/schema";
 import { DatabaseStorage } from "./db";
+import { type InsertDownload, type Download, type InsertUser, type User, type InsertProject, type Project, type InsertFile, type GeneratedFile, type InsertSecurityScan, type SecurityScan } from "@shared/schema";
 
 export interface IStorage {
   // User methods

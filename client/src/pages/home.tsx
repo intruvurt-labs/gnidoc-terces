@@ -37,6 +37,8 @@ export default function Home() {
     result,
   } = useAIGeneration();
 
+  const { data: aiStatus } = useAIStatus();
+
   const { isHealthy, isOnline, healthError } = useConnectionHealth();
   const {
     isScanning: isSecurityScanning,

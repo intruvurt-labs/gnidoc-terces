@@ -239,6 +239,23 @@ export default DemoComponent;`;
 
             {/* Prompt */}
             <div className="space-y-4">
+              {/* Tiny option buttons */}
+              <div className="flex items-center gap-2 mb-1">
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setPrompt("")}>Clear</Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setPrompt(`Build a complete, production-ready React + TypeScript application.\n\nRequirements:\n- Implement full CRUD with form validation and routing\n- Use TailwindCSS for styling\n- Include a responsive layout and accessibility best practices\n- Provide unit tests when asked\n\nOutput rules:\n- Return ONLY fenced code blocks (no prose)\n- Include all required files (e.g., package.json, tsconfig, vite config)\n- No placeholders or TODOs; fully working code`)}
+                >Template</Button>
+                <Button
+                  size="sm"
+                  variant={bestMode ? "default" : "outline"}
+                  className={`h-7 px-2 text-xs ${bestMode ? 'bg-cyber-green text-black' : ''}`}
+                  onClick={() => setBestMode(v => !v)}
+                >Best Mode {bestMode ? 'On' : 'Off'}</Button>
+              </div>
+
               <Textarea
                 placeholder="Describe your app or upload files..."
                 value={prompt}

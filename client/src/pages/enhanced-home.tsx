@@ -83,7 +83,41 @@ export function EnhancedHome() {
   }, []);
 
   const handleFilesChange = (files: any[]) => {
-    setUploadedFiles(files);
+    const names = new Set((files || []).map((f: any) => f.name));
+    const extra: any[] = [];
+
+    const ensure = (name: string, content: string) => {
+      if (!names.has(name)) {
+        extra.push({
+          id: `gen_${Date.now()}_${name}`,
+          file: new File([content], name, { type: 'text/plain' }),
+          name,
+          size: content.length,
+          type: 'text/plain',
+          category: 'code',
+          content,
+          uploadProgress: 100,
+          status: 'completed',
+        });
+      }
+    };
+
+    const hasCode = (files || []).some((f: any) => f.category === 'code');
+    if (hasCode) {
+      ensure('package.json', JSON.stringify({
+        name: 'app', version: '1.0.0', private: true,
+        scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' },
+        dependencies: { react: '^18.3.1', 'react-dom': '^18.3.1' },
+        devDependencies: { vite: '^5.4.0', typescript: '^5.6.3', '@types/react': '^18.3.11', '@types/react-dom': '^18.3.1' }
+      }, null, 2));
+      ensure('tsconfig.json', JSON.stringify({ compilerOptions: { jsx: 'react-jsx', target: 'ES2020', module: 'ESNext', moduleResolution: 'Bundler', strict: true } }, null, 2));
+      ensure('index.html', '<!doctype html>\n<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>App</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>');
+      ensure('src/main.tsx', "import React from 'react';\nimport { createRoot } from 'react-dom/client';\nimport App from './App';\ncreateRoot(document.getElementById('root')!).render(<App />);\n");
+      ensure('src/App.tsx', "import React from 'react';\nexport default function App(){return <div style={{padding:20}}>App Ready</div>}");
+    }
+
+    const all = [...files, ...extra];
+    setUploadedFiles(all);
   };
 
   const [, navigate] = useLocation();

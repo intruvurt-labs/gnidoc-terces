@@ -39,6 +39,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create project
+  app.post("/api/projects", async (req, res) => {
+    try {
+      const { name, description, type } = req.body || {};
+      if (!name || typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ error: 'Project name is required' });
+      }
+      const project = await storage.createProject({
+        name: name.trim(),
+        description: typeof description === 'string' ? description.trim() : null,
+        type: (type === 'code' || type === 'image' || type === 'video' || type === 'security') ? type : 'code',
+        status: 'processing',
+        prompt: '',
+        result: null,
+      } as any);
+      res.status(201).json(project);
+    } catch (error) {
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to create project"
+      });
+    }
+  });
+
   // Get all projects
   app.get("/api/projects", async (req, res) => {
     try {
@@ -144,7 +167,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Demo route to showcase GINDOC capabilities 
+  // OAuth start routes (configuration required)
+  app.get('/auth/google', (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/google/callback`;
+    const scope = encodeURIComponent('openid email profile');
+    if (!clientId) return res.status(501).json({ error: 'Google OAuth not configured' });
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+    res.redirect(url);
+  });
+
+  app.get('/auth/github', (req, res) => {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const redirectUri = process.env.GITHUB_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/github/callback`;
+    const scope = 'read:user user:email';
+    if (!clientId) return res.status(501).json({ error: 'GitHub OAuth not configured' });
+    const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
+    res.redirect(url);
+  });
+
+  // OAuth callbacks (token exchange requires secrets)
+  app.get('/auth/google/callback', async (req, res) => {
+    const code = String(req.query.code || '');
+    const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/google/callback`;
+    if (!clientId || !clientSecret) return res.status(501).json({ error: 'Google OAuth not fully configured' });
+    try {
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code'
+        }),
+      });
+      const tokens = await tokenRes.json();
+      return res.json({ status: 'ok', provider: 'google', tokens });
+    } catch (e) {
+      return res.status(500).json({ error: 'OAuth exchange failed' });
+    }
+  });
+
+  app.get('/auth/github/callback', async (req, res) => {
+    const code = String(req.query.code || '');
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    const redirectUri = process.env.GITHUB_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/github/callback`;
+    if (!clientId || !clientSecret) return res.status(501).json({ error: 'GitHub OAuth not fully configured' });
+    try {
+      const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code,
+          redirect_uri: redirectUri,
+        }) as any,
+      });
+      const tokens = await tokenRes.json();
+      return res.json({ status: 'ok', provider: 'github', tokens });
+    } catch (e) {
+      return res.status(500).json({ error: 'OAuth exchange failed' });
+    }
+  });
+
+  // Demo route to showcase GINDOC capabilities
   app.post("/api/demo", async (req, res) => {
     try {
       // Create demo project with sample React TypeScript todo app

@@ -396,14 +396,38 @@ export default App;`
       status: "healthy",
       timestamp: new Date().toISOString(),
       aiServices: {
-        gemini: process.env.GOOGLE_API_KEY ? "configured" : "missing",
-        runway: "simulated",
+        gemini: process.env.GOOGLE_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ? "configured" : "missing",
+        runway: process.env.RUNWAY_ML_API_KEY ? "configured" : "missing",
         imagen: "integrated"
       },
       database: {
         primary: "PostgreSQL (Neon)",
         realtime: "GindocDB (Firebase Clone)",
         status: "operational"
+      }
+    });
+  });
+
+  // AI provider status
+  app.get("/api/ai/status", (req, res) => {
+    res.json({
+      timestamp: new Date().toISOString(),
+      providers: {
+        gemini: {
+          configured: Boolean(process.env.GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY),
+        },
+        openai: {
+          configured: Boolean(process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY),
+        },
+        anthropic: {
+          configured: Boolean(process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY),
+        },
+        vision: {
+          configured: Boolean(process.env.GOOGLE_VISION_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY),
+        },
+        runway: {
+          configured: Boolean(process.env.RUNWAY_ML_API_KEY),
+        },
       }
     });
   });

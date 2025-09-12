@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoadingModal from "@/components/ui/loading-modal";
 import CodeEditor from "@/components/ui/code-editor";
 import FileCard from "@/components/ui/file-card";
@@ -178,7 +178,10 @@ export default DemoComponent;`;
 
   // Initialize Beast Mode from cookie
   useEffect(() => {
-    try { const v = getCookie('beastMode'); if (v === 'true' || v === 'false') setBestMode(v === 'true'); } catch {}
+    try {
+      const v = document.cookie.split('; ').find(r => r.startsWith('beastMode='))?.split('=')[1];
+      if (v === 'true' || v === 'false') setBestMode(v === 'true');
+    } catch {}
   }, []);
 
   return (

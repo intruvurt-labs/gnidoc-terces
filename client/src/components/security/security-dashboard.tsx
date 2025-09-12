@@ -121,7 +121,15 @@ export function SecurityDashboard() {
     threatTrends: []
   });
 
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const initialTab = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('tab') || 'overview';
+    } catch {
+      return 'overview';
+    }
+  })();
+  const [selectedTab, setSelectedTab] = useState(initialTab);
 
   // Simulate real-time updates
   useEffect(() => {
@@ -182,8 +190,8 @@ export function SecurityDashboard() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="w-8 h-8 text-cyan-400" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
-            FORTRESS ELITE SECURITY
+          <h1 className="text-4xl md:text-6xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
+            gnidoC Security
           </h1>
           <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
             MILITARY GRADE
@@ -207,7 +215,7 @@ export function SecurityDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-green-400">{metrics.overallScore}%</p>
+                <p className="text-2xl font-bold text-green-400">{metrics.overallScore.toFixed(2)}%</p>
                 <p className="text-xs text-gray-400">Security Score</p>
               </div>
             </div>
@@ -255,7 +263,7 @@ export function SecurityDashboard() {
               <Activity className="w-8 h-8 text-green-400" />
               <div>
                 <p className="text-sm text-gray-400">System Uptime</p>
-                <p className="text-xl font-bold text-green-400">{metrics.uptime}%</p>
+                <p className="text-xl font-bold text-green-400">{metrics.uptime.toFixed(2)}%</p>
               </div>
             </div>
             <div className="mt-3 text-sm text-gray-400">
@@ -359,7 +367,7 @@ export function SecurityDashboard() {
                   <div className="text-sm text-gray-400">Scans Completed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">{metrics.uptime}%</div>
+                  <div className="text-2xl font-bold text-blue-400">{metrics.uptime.toFixed(2)}%</div>
                   <div className="text-sm text-gray-400">Uptime</div>
                 </div>
                 <div className="text-center">

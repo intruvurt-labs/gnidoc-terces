@@ -124,6 +124,20 @@ export class DatabaseStorage implements IStorage {
     return file;
   }
 
+  // Download history
+  async createDownload(event: InsertDownload): Promise<Download> {
+    const [row] = await db.insert(downloads).values(event).returning();
+    return row;
+  }
+
+  async getDownloads(limit = 20): Promise<Download[]> {
+    return await db
+      .select()
+      .from(downloads)
+      .orderBy(desc(downloads.downloadedAt))
+      .limit(limit);
+  }
+
   // Security scan methods
   async createSecurityScan(scan: InsertSecurityScan): Promise<SecurityScan> {
     const [newScan] = await db.insert(securityScans).values({

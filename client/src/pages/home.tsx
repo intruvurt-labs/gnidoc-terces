@@ -300,9 +300,24 @@ export default DemoComponent;`;
                   />
                 </div>
               )}
-              {latestProject.type === 'video' && latestProject.result && typeof latestProject.result === 'object' && 'videoData' in latestProject.result && (
+              {latestProject.type === 'video' && latestProject.result && typeof latestProject.result === 'object' && (
                 <div className="bg-dark-card rounded p-3 text-sm text-gray-300 border border-gray-600">
-                  {(latestProject.result as any).videoData}
+                  {'videoUrl' in (latestProject.result as any) && (latestProject.result as any).videoUrl ? (
+                    <div className="space-y-2">
+                      <video controls className="w-full max-h-[420px] rounded border border-cyber-cyan/30">
+                        <source src={String((latestProject.result as any).videoUrl)} type="video/mp4" />
+                      </video>
+                      <a
+                        href={String((latestProject.result as any).videoUrl)}
+                        download
+                        className="inline-flex items-center glass-button px-3 py-1 rounded"
+                      >
+                        <i className="fas fa-download mr-2"></i>Download MP4
+                      </a>
+                    </div>
+                  ) : ('videoData' in (latestProject.result as any) ? (
+                    <pre className="whitespace-pre-wrap break-words">{String((latestProject.result as any).videoData)}</pre>
+                  ) : null)}
                 </div>
               )}
               {latestProject.type === 'security' && latestProject.result && typeof latestProject.result === 'object' && (

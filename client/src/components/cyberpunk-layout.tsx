@@ -53,6 +53,10 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
       <main className="container mx-auto px-6 py-8">
         {children}
       </main>
+
+      <footer className="mt-12">
+        <CopyrightNotice />
+      </footer>
     </div>
   );
 }

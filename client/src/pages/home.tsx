@@ -99,6 +99,8 @@ export default function Home() {
           language: "typescript",
           framework: "react",
           includeTests: false,
+          bestOrchestration: bestMode,
+          onlyCodeOutput: bestMode,
         });
         break;
       case "image":

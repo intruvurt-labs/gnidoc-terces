@@ -253,6 +253,7 @@ export default DemoComponent;`;
             <div className="space-y-4">
               {/* Tiny option buttons */}
               <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-gray-400 mr-2">real ai devs build here</span>
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setPrompt("")}>Clear</Button>
                 <Button
                   size="sm"
@@ -264,8 +265,9 @@ export default DemoComponent;`;
                   size="sm"
                   variant={bestMode ? "default" : "outline"}
                   className={`h-7 px-2 text-xs ${bestMode ? 'bg-cyber-green text-black' : ''}`}
-                  onClick={() => setBestMode(v => !v)}
+                  onClick={() => setBestMode(v => { const next = !v; document.cookie = `beastMode=${next}; path=/; max-age=${60*60*24*365}`; return next; })}
                 >Beast Mode {bestMode ? 'On' : 'Off'}</Button>
+                <VoiceButton onAppend={(t) => setPrompt(p => (p ? p + "\n" : "") + t)} />
               </div>
 
               <Textarea

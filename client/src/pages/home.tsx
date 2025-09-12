@@ -6,6 +6,7 @@ import FileCard from "@/components/ui/file-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIGeneration } from "@/hooks/use-ai-generation";
+import { VoiceButton } from "@/components/ui/voice-button";
 import { useConnectionHealth } from "@/hooks/use-connection-health";
 import { useSecurityScan } from "@/hooks/use-security-scan";
 import { useTriAnalysis } from "@/hooks/use-tri-analysis";

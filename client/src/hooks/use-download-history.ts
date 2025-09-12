@@ -22,10 +22,12 @@ export function useDownloadHistory(limit = 20) {
       } catch (err) {
         const cached = queryClient.getQueryData<DownloadItem[]>(["/api/downloads", limit]);
         if (cached) return cached;
-        throw err instanceof Error ? err : new Error("Failed to fetch downloads");
+        return [];
       }
     },
     refetchInterval: 8000,
-    retry: 2,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    staleTime: 30_000,
   });
 }

@@ -33,25 +33,34 @@ export const getQueryFn: <T>(options: {
       const url = queryKey.join("/") as string;
       console.log(`Fetching: ${url}`); // Debug logging
 
-      const res = await fetch(url, {
-        credentials: "include",
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      try {
+        const res = await fetch(url, {
+          credentials: "include",
+          headers: {
+            'Accept': 'application/json',
+          },
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+        clearTimeout(timeout);
 
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-        return null;
+        if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+          return null as unknown as T;
+        }
+
+        await throwIfResNotOk(res);
+        const data = await res.json();
+        console.log(`Success: ${url}`, data);
+        return data;
+      } finally {
+        clearTimeout(timeout);
       }
 
-      await throwIfResNotOk(res);
-      const data = await res.json();
-      console.log(`Success: ${url}`, data); // Debug logging
-      return data;
     } catch (error) {
       const key = queryKey.join("/") as string;
-      console.error(`Fetch error for ${key}:`, error);
+      console.warn(`Fetch error for ${key}:`, error);
       // Try cache first
       const cached = queryClient.getQueryData<any>(queryKey as any);
       if (cached !== undefined) return cached as T;

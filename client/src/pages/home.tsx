@@ -279,7 +279,7 @@ export default DemoComponent;`;
           {files && files.length > 0 && (
             <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
               <h3 className="text-lg font-orbitron font-bold text-cyber-cyan mb-3">
-                <i className="fas fa-files mr-2"></i>Generated Files
+                <i className="fas fa-file-code mr-2"></i>Generated Files
               </h3>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {files.map((file) => (

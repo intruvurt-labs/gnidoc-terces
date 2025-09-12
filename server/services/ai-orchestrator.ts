@@ -3,9 +3,10 @@ import { type AIGenerationRequest, type Project, type GeneratedFile } from "@sha
 import { storage } from "../storage";
 import * as fs from "fs";
 import * as path from "path";
+import fetch from "node-fetch";
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || ""
+  apiKey: process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || ""
 });
 
 export interface GenerationResult {

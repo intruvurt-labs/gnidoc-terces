@@ -204,6 +204,8 @@ export class AIOrchestrator {
         });
         if (resp.ok) {
           const data: any = await resp.json();
+          const videoUrl = data?.output?.[0]?.url || data?.assets?.[0]?.url || data?.url;
+          if (videoUrl) return videoUrl;
           return JSON.stringify({ provider: "runway", jobId: data.id || data.job_id || "unknown", status: data.status || "submitted" });
         }
       }

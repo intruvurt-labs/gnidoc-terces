@@ -18,6 +18,7 @@ export interface IStorage {
   createFile(file: InsertFile): Promise<GeneratedFile>;
   getFilesByProject(projectId: string): Promise<GeneratedFile[]>;
   getFile(id: string): Promise<GeneratedFile | undefined>;
+  updateFile(id: string, updates: Partial<GeneratedFile>): Promise<GeneratedFile>;
 
   // Download history
   createDownload(event: InsertDownload): Promise<Download>;

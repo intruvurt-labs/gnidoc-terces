@@ -225,9 +225,8 @@ export default DemoComponent;`;
           {/* AI Orchestration Hub */}
           <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-orbitron font-bold text-cyber-green flex items-center">
-                <i className="fas fa-brain mr-3 text-cyber-cyan"></i>
-                AI Orchestration Hub
+              <h2 className="text-3xl font-orbitron font-bold text-black">
+                gnidoC Terces
               </h2>
             </div>
 

@@ -256,7 +256,6 @@ export default DemoComponent;`;
             <div className="space-y-4">
               {/* Tiny option buttons */}
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs text-gray-400 mr-2">real ai devs build here</span>
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setPrompt("")}>Clear</Button>
                 <Button
                   size="sm"
@@ -279,6 +278,11 @@ export default DemoComponent;`;
                 onChange={(e) => setPrompt(e.target.value)}
                 className="w-full h-40 bg-gray-800 border border-gray-600 rounded-lg p-4 text-white font-fira text-sm focus:border-cyber-green focus:ring-2 focus:ring-cyber-green/20"
               />
+
+              {/* Tagline above buttons */}
+              <div className="my-2">
+                <h3 className="text-xl sm:text-2xl font-orbitron font-bold text-cyber-green text-center">real ai devs build here</h3>
+              </div>
 
               {/* Generation Buttons */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">

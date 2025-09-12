@@ -39,6 +39,7 @@ export default function Home() {
   } = useAIGeneration();
 
   const { data: aiStatus } = useAIStatus();
+  const { data: downloads = [] } = useDownloadHistory(20);
 
   const { isHealthy, isOnline, healthError } = useConnectionHealth();
   const {

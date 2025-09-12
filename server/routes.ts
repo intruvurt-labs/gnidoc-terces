@@ -392,12 +392,23 @@ export default App;`
 
   // Health check
   app.get("/api/health", (req, res) => {
+    const hasGemini = Boolean(
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    );
+    const hasRunway = Boolean(
+      process.env.RUNWAY_ML_API_KEY ||
+      process.env.NEXT_PUBLIC_RUNWAY_ML_API_KEY
+    );
+
     res.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
       aiServices: {
-        gemini: process.env.GOOGLE_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ? "configured" : "missing",
-        runway: process.env.RUNWAY_ML_API_KEY ? "configured" : "missing",
+        gemini: hasGemini ? "configured" : "missing",
+        runway: hasRunway ? "configured" : "missing",
         imagen: "integrated"
       },
       database: {
@@ -410,24 +421,38 @@ export default App;`
 
   // AI provider status
   app.get("/api/ai/status", (req, res) => {
+    const hasGemini = Boolean(
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    );
+    const hasOpenAI = Boolean(
+      process.env.OPENAI_API_KEY ||
+      process.env.NEXT_PUBLIC_OPENAI_API_KEY
+    );
+    const hasAnthropic = Boolean(
+      process.env.ANTHROPIC_API_KEY ||
+      process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
+    );
+    const hasVision = Boolean(
+      process.env.GOOGLE_VISION_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    );
+    const hasRunway = Boolean(
+      process.env.RUNWAY_ML_API_KEY ||
+      process.env.NEXT_PUBLIC_RUNWAY_ML_API_KEY
+    );
+
     res.json({
       timestamp: new Date().toISOString(),
       providers: {
-        gemini: {
-          configured: Boolean(process.env.GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY),
-        },
-        openai: {
-          configured: Boolean(process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY),
-        },
-        anthropic: {
-          configured: Boolean(process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY),
-        },
-        vision: {
-          configured: Boolean(process.env.GOOGLE_VISION_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY),
-        },
-        runway: {
-          configured: Boolean(process.env.RUNWAY_ML_API_KEY),
-        },
+        gemini: { configured: hasGemini },
+        openai: { configured: hasOpenAI },
+        anthropic: { configured: hasAnthropic },
+        vision: { configured: hasVision },
+        runway: { configured: hasRunway },
       }
     });
   });

@@ -67,6 +67,14 @@ export function useAIGeneration() {
       } catch (error) {
         clearInterval(progressInterval);
         setState({ isGenerating: false, progress: 0, status: "Error occurred" });
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.startsWith('429')) {
+          toast({
+            title: 'Rate limit hit',
+            description: 'You have reached the generation limit. Please wait a minute and try again.',
+            variant: 'destructive',
+          });
+        }
         throw error;
       }
     },

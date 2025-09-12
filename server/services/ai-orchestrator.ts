@@ -294,7 +294,40 @@ export class AIOrchestrator {
           // Create multiple files based on the generated code
           const codeFiles = this.parseCodeIntoFiles(code, project.id);
           files.push(...codeFiles);
-          
+
+          // Beast Mode extras: SEO name + related assets
+          if (request.options?.beastMode) {
+            try {
+              const seoName = await generateSEOName(request.prompt);
+              (result as any).seoName = seoName;
+            } catch {}
+            try {
+              const img = await this.generateImage(request.prompt);
+              files.push(await storage.createFile({
+                projectId: project.id,
+                fileName: 'branding/cover.png',
+                fileType: 'image',
+                content: null,
+                binaryData: img,
+                size: Math.floor(img.length * 0.75),
+              } as any));
+            } catch {}
+            try {
+              const vid = await this.generateVideo(`Product teaser for: ${request.prompt}`);
+              if (typeof vid === 'string' && vid.startsWith('http')) {
+                files.push(await storage.createFile({
+                  projectId: project.id,
+                  fileName: 'branding/teaser.mp4',
+                  fileType: 'video',
+                  content: null,
+                  binaryData: null,
+                  size: 0,
+                  downloadUrl: vid,
+                } as any));
+              }
+            } catch {}
+          }
+
           // Perform security scan
           const securityResult = await this.performSecurityScan(code);
           await storage.createSecurityScan({

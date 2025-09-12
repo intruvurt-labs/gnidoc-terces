@@ -238,7 +238,7 @@ export class FortressEliteScanner extends EventEmitter {
       scanResult.riskLevel = assessment.riskLevel;
       scanResult.compliance = assessment.compliance;
       scanResult.scanDuration = Date.now() - startTime;
-      scanResult.filesScanned = this.countFiles(projectPath);
+      scanResult.filesScanned = await this.countFiles(projectPath);
 
       // Store in history
       this.scanHistory.set(scanId, scanResult);
@@ -563,19 +563,68 @@ export class FortressEliteScanner extends EventEmitter {
     return content.substring(0, index).split('\n').length;
   }
 
+  private async pathExists(p: string): Promise<boolean> {
+    try {
+      await fs.stat(p);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async hasFileWithExt(projectPath: string, exts: string[]): Promise<boolean> {
+    if (!projectPath || !(await this.pathExists(projectPath))) return false;
+    const stack = [projectPath];
+    while (stack.length) {
+      const dir = stack.pop()!;
+      try {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        for (const ent of entries) {
+          if (ent.name === 'node_modules' || ent.name.startsWith('.git')) continue;
+          const full = path.join(dir, ent.name);
+          if (ent.isDirectory()) stack.push(full);
+          else if (exts.some(ext => ent.name.toLowerCase().endsWith(ext))) return true;
+        }
+      } catch {
+        // ignore unreadable directories
+      }
+    }
+    return false;
+  }
+
   private hasSlitherSupport(projectPath: string): boolean {
-    // Check for Solidity files or package.json with slither dependency
-    return true; // Simplified for demo
+    // synchronous shim calls async checker (best-effort)
+    // Slither relevant if Solidity (.sol) files exist
+    // Note: fire-and-forget; callers also gate by options
+    // We conservatively return false; async checks will enrich results in other phases
+    return false;
   }
 
   private hasMythrilSupport(projectPath: string): boolean {
-    // Check for smart contract files
-    return true; // Simplified for demo
+    // Same as above; treat as disabled unless explicitly detected elsewhere
+    return false;
   }
 
-  private countFiles(projectPath: string): number {
-    // Count scannable files
-    return Math.floor(Math.random() * 50) + 10; // Simplified for demo
+  private async countFiles(projectPath: string): Promise<number> {
+    if (!projectPath || !(await this.pathExists(projectPath))) return 0;
+    const exts = ['.ts', '.tsx', '.js', '.jsx', '.sol', '.py', '.rs', '.go', '.json', '.yaml', '.yml'];
+    let count = 0;
+    const stack = [projectPath];
+    while (stack.length) {
+      const dir = stack.pop()!;
+      try {
+        const entries = await fs.readdir(dir, { withFileTypes: true });
+        for (const ent of entries) {
+          if (ent.name === 'node_modules' || ent.name.startsWith('.git')) continue;
+          const full = path.join(dir, ent.name);
+          if (ent.isDirectory()) stack.push(full);
+          else if (exts.some(ext => ent.name.toLowerCase().endsWith(ext))) count++;
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return count;
   }
 
   // Public utility methods

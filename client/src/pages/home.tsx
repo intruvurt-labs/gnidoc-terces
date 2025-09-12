@@ -407,33 +407,28 @@ export default DemoComponent;`;
           </div>
 
           {/* Download History */}
-          {(() => {
-            const { data: downloads = [] } = useDownloadHistory(20);
-            return (
-              <div className="glass-morph rounded-xl p-4 sm:p-6">
-                <h3 className="text-lg font-orbitron font-bold text-cyber-cyan mb-2">
-                  <i className="fas fa-history mr-2"></i>Download History
-                </h3>
-                {downloads.length === 0 ? (
-                  <div className="text-xs text-gray-400">No downloads yet.</div>
-                ) : (
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {downloads.map((d) => (
-                      <div key={d.id} className="flex items-center justify-between bg-dark-card rounded-lg p-3">
-                        <div className="min-w-0">
-                          <div className="text-sm text-white truncate">{d.fileName}</div>
-                          <div className="text-[10px] text-gray-500">{new Date(d.downloadedAt).toLocaleString()}</div>
-                        </div>
-                        <Button size="sm" onClick={() => downloadFile({ id: d.fileId, fileName: d.fileName, fileType: '', content: null, binaryData: null, size: d.size, projectId: d.projectId, downloadUrl: d.downloadUrl, createdAt: new Date(d.downloadedAt) } as any)}>
-                          <i className="fas fa-download mr-2"></i>Download
-                        </Button>
-                      </div>
-                    ))}
+          <div className="glass-morph rounded-xl p-4 sm:p-6">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-cyan mb-2">
+              <i className="fas fa-history mr-2"></i>Download History
+            </h3>
+            {downloads.length === 0 ? (
+              <div className="text-xs text-gray-400">No downloads yet.</div>
+            ) : (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {downloads.map((d) => (
+                  <div key={d.id} className="flex items-center justify-between bg-dark-card rounded-lg p-3">
+                    <div className="min-w-0">
+                      <div className="text-sm text-white truncate">{d.fileName}</div>
+                      <div className="text-[10px] text-gray-500">{new Date(d.downloadedAt).toLocaleString()}</div>
+                    </div>
+                    <Button size="sm" onClick={() => downloadFile({ id: d.fileId, fileName: d.fileName, fileType: '', content: null, binaryData: null, size: d.size, projectId: d.projectId, downloadUrl: d.downloadUrl, createdAt: new Date(d.downloadedAt) } as any)}>
+                      <i className="fas fa-download mr-2"></i>Download
+                    </Button>
                   </div>
-                )}
+                ))}
               </div>
-            );
-          })()}
+            )}
+          </div>
         </div>
       </div>
     </>

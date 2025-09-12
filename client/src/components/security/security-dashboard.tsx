@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -121,15 +122,42 @@ export function SecurityDashboard() {
     threatTrends: []
   });
 
+  const allowedTabs = ['overview', 'threats', 'scans', 'analysis'] as const;
   const initialTab = (() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      return params.get('tab') || 'overview';
+      const t = params.get('tab') || 'overview';
+      return allowedTabs.includes(t as any) ? t : 'overview';
     } catch {
       return 'overview';
     }
   })();
-  const [selectedTab, setSelectedTab] = useState(initialTab);
+  const [selectedTab, setSelectedTab] = useState<string>(initialTab);
+
+  const [location] = useLocation();
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab');
+      if (t && t !== selectedTab && allowedTabs.includes(t as any)) {
+        setSelectedTab(t);
+      }
+    } catch {
+      // ignore
+    }
+  }, [location]);
+
+  const handleTabChange = (val: string) => {
+    setSelectedTab(val);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', val);
+      window.history.replaceState(null, '', url.toString());
+    } catch {
+      // ignore
+    }
+  };
 
   // Simulate real-time updates
   useEffect(() => {
@@ -138,8 +166,7 @@ export function SecurityDashboard() {
       setMetrics(prev => ({
         ...prev,
         overallScore: Math.max(70, prev.overallScore + (Math.random() - 0.5) * 2),
-        threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 3),
-        requestsPerSecond: 8 + Math.random() * 10
+        threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 3)
       }));
 
       // Update real-time stats
@@ -274,7 +301,7 @@ export function SecurityDashboard() {
       </div>
 
       {/* Main Dashboard */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+      <Tabs value={selectedTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="bg-gray-900/50 border border-cyan-500/30">
           <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-500/20">
             <BarChart3 className="w-4 h-4 mr-2" />

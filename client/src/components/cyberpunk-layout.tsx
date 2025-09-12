@@ -16,8 +16,8 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="cyber-border rounded-lg">
-                <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-3">
-                  <span className="logo-wordmark" aria-label="GINDOC" />
+                <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center">
+                  <span className="brand-bevel text-2xl md:text-3xl" aria-label="gnidoC Terces">gnidoC Terces</span>
                 </div>
               </div>
               <div className="flex flex-col">

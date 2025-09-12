@@ -9,6 +9,8 @@ import CyberpunkLayout from "@/components/cyberpunk-layout";
 import NotFound from "@/pages/not-found";
 import EnhancedHome from "@/pages/enhanced-home";
 import Home from "@/pages/home";
+import SettingsPage from "@/pages/settings";
+import { SecurityDashboard } from "@/components/security/security-dashboard";
 
 function Router() {
   return (

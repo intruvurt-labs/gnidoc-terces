@@ -16,6 +16,17 @@ export interface AIStatusResponse {
   };
 }
 
+const DEFAULT_AI_STATUS: AIStatusResponse = {
+  timestamp: new Date().toISOString(),
+  providers: {
+    gemini: { configured: false },
+    openai: { configured: false },
+    anthropic: { configured: false },
+    vision: { configured: false },
+    runway: { configured: false },
+  },
+};
+
 export function useAIStatus() {
   const { data, error, isLoading, refetch } = useQuery<AIStatusResponse>({
     queryKey: ["/api/ai/status"],
@@ -27,11 +38,13 @@ export function useAIStatus() {
       } catch (err) {
         const cached = queryClient.getQueryData<AIStatusResponse>(["/api/ai/status"]);
         if (cached) return cached;
-        throw err instanceof Error ? err : new Error("Failed to fetch AI status");
+        return DEFAULT_AI_STATUS;
       }
     },
     refetchInterval: 5000,
-    retry: 2,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    staleTime: 30_000,
   });
 
   return { data, error, isLoading, refetch };

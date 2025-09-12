@@ -90,36 +90,34 @@ async function callGeminiText(prompt: string, systemPrompt: string): Promise<str
   }
 }
 
-function selectBestCode(candidates: Array<{ provider: string; text: string }>): string | null {
+function selectBestCode(candidates: Array<{ provider: string; text: string }>, opts?: { strict?: boolean }): string | null {
   if (candidates.length === 0) return null;
   const scored = candidates.map(c => {
-    const fenceCount = (c.text.match(/```/g) || []).length;
-    const lengthScore = Math.min(1, c.text.length / 8000);
-    const typesCount = (c.text.match(/```\w+/g) || []).length;
-    const score = fenceCount * 2 + typesCount * 1.5 + lengthScore;
+    const text = c.text || '';
+    const fenceCount = (text.match(/```/g) || []).length;
+    const codeTypes = (text.match(/```\w+/g) || []).length;
+    const lengthScore = Math.min(1.5, text.length / 6000);
+    const codeBlocks = text.match(/```[\s\S]*?```/g) || [];
+    const codeChars = codeBlocks.reduce((n, b) => n + b.length, 0);
+    const codeRatio = text.length ? Math.min(2, codeChars / text.length) : 0;
+    const hasPackage = /\bpackage\.json\b/.test(text) ? 1 : 0;
+    const hasTsx = /```tsx|```typescript|import React/.test(text) ? 0.5 : 0;
+    const hasTodoPenalty = /TODO|to be implemented|\.\.\./i.test(text) ? -2 : 0;
+    const hasProsePenalty = /(as an ai|cannot|I am unable)/i.test(text) ? -3 : 0;
+    const score = fenceCount * 1.5 + codeTypes * 1.2 + lengthScore + codeRatio * (opts?.strict ? 3 : 1.5) + hasPackage + hasTsx + hasTodoPenalty + hasProsePenalty;
     return { ...c, score } as any;
   }).sort((a, b) => b.score - a.score);
-  return scored[0].text;
+  return scored[0]?.text || null;
 }
 
 export class AIOrchestrator {
   
   async generateCode(prompt: string, options?: any): Promise<string> {
     try {
-      const systemPrompt = `You are an expert full-stack developer. Generate complete, production-ready code based on the user's requirements.
-      Include proper error handling, modern best practices, and comprehensive functionality.
-      Respond with clean, well-documented code that can be immediately deployed.
-
-      Requirements:
-      - Generate complete file structures with all necessary dependencies
-      - Include proper error handling and validation
-      - Use modern frameworks and best practices
-      - Add comprehensive comments and documentation
-      - Ensure security best practices are followed
-
-      ${options?.language ? `Programming Language: ${options.language}` : ''}
-      ${options?.framework ? `Framework: ${options.framework}` : ''}
-      ${options?.includeTests ? 'Include unit tests and testing setup' : ''}`;
+      const strict = Boolean(options?.bestOrchestration || options?.onlyCodeOutput);
+      const basePrompt = `You are an expert full-stack developer. Generate complete, production-ready code based on the user's requirements.\nInclude proper error handling, modern best practices, and comprehensive functionality.`;
+      const strictDirectives = strict ? `\nCRITICAL OUTPUT RULES:\n- Output ONLY fenced code blocks using triple backticks. No explanations or prose.\n- Provide COMPLETE, WORKING files from start to finish.\n- Include all required files (e.g., package.json) when applicable.\n- No placeholders, no TODOs, no ellipses.\n- Ensure imports and exports line up; avoid missing dependencies.` : '';
+      const systemPrompt = `${basePrompt}${strictDirectives}\n\nRequirements:\n- Generate complete file structures with all necessary dependencies\n- Include proper error handling and validation\n- Use modern frameworks and best practices\n- Add comprehensive comments and documentation\n- Ensure security best practices are followed\n\n${options?.language ? `Programming Language: ${options.language}` : ''}\n${options?.framework ? `Framework: ${options.framework}` : ''}\n${options?.includeTests ? 'Include unit tests and testing setup' : ''}`;
 
       const settled = await Promise.allSettled([
         callGeminiText(prompt, systemPrompt).then(text => ({ provider: 'gemini', text })),
@@ -131,8 +129,14 @@ export class AIOrchestrator {
         .filter(r => r.status === 'fulfilled' && (r as any).value.text)
         .map((r: any) => ({ provider: r.value.provider, text: r.value.text as string }));
 
-      const best = selectBestCode(candidates);
+      const best = selectBestCode(candidates, { strict });
       if (best) return best;
+
+      if (strict) {
+        const fallback = await callGeminiText(`${prompt}\n\nReturn ONLY complete code blocks for all files required to run. No prose.`, systemPrompt);
+        if (fallback) return fallback;
+      }
+
       return this.generateDemoCode(prompt, options);
     } catch (error) {
       return this.generateDemoCode(prompt, options);

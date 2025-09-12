@@ -110,8 +110,25 @@ function selectBestCode(candidates: Array<{ provider: string; text: string }>, o
   return scored[0]?.text || null;
 }
 
+async function generateSEOName(prompt: string, filenames?: string[]): Promise<string> {
+  const sys = 'Create a short, uncommon, brandable app name (2-3 words max). No quotes, no punctuation, no sensitive data.';
+  const input = JSON.stringify({ prompt, files: filenames || [] });
+  try {
+    const resp = await ai.models.generateContent({
+      model: 'gemini-2.5-pro',
+      config: { systemInstruction: sys },
+      contents: input,
+    });
+    const text = (resp.text || '').trim();
+    if (text) return text.replace(/^["']|["']$/g, '').slice(0, 60);
+  } catch {}
+  const base = 'Nebula';
+  const uniq = Math.random().toString(36).slice(2, 6);
+  return `${base}-${uniq}`;
+}
+
 export class AIOrchestrator {
-  
+
   async generateCode(prompt: string, options?: any): Promise<string> {
     try {
       const strict = Boolean(options?.bestOrchestration || options?.onlyCodeOutput);

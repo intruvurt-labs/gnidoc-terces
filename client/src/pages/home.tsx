@@ -16,8 +16,40 @@ import { type UploadedFile } from "@/hooks/use-file-upload";
 import FileManager from "@/components/file-manager";
 import TriAnalysisResults from "@/components/tri-analysis-results";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 
 import { type Project, type GeneratedFile } from "@shared/schema";
+
+function CreateProjectForm() {
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const canSubmit = name.trim().length > 0;
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setSubmitting(true);
+    try {
+      await apiRequest('POST', '/api/projects', { name: name.trim(), description: description.trim(), type: 'code' });
+      setName(""); setDescription("");
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+    } catch (err) {
+      console.warn('Create project failed', err);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  return (
+    <form onSubmit={onSubmit} className="space-y-2">
+      <Input placeholder="Project name" value={name} onChange={(e) => setName(e.target.value)} />
+      <Textarea placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} className="h-20" />
+      <Button type="submit" disabled={!canSubmit || submitting} className="w-full">
+        <i className="fas fa-plus mr-2"></i>{submitting ? 'Creating…' : 'Create'}
+      </Button>
+    </form>
+  );
+}
 
 export default function Home() {
   const [prompt, setPrompt] = useState(
@@ -254,6 +286,10 @@ export default DemoComponent;`;
 
             {/* Prompt */}
             <div className="space-y-4">
+              {/* Tagline above small controls */}
+              <div className="my-2">
+                <h3 className="text-xl sm:text-2xl font-orbitron font-bold text-cyber-green text-center">real ai devs build here</h3>
+              </div>
               {/* Tiny option buttons */}
               <div className="flex items-center gap-2 mb-1">
                 <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setPrompt("")}>Clear</Button>
@@ -459,6 +495,36 @@ export default DemoComponent;`;
                 </div>
               );
             })()}
+          </div>
+
+          {/* Create Project */}
+          <div className="glass-morph rounded-xl p-4 sm:p-6">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-yellow mb-2">
+              <i className="fas fa-plus mr-2"></i>Create Project
+            </h3>
+            <CreateProjectForm />
+          </div>
+
+          {/* Auth */}
+          <div className="glass-morph rounded-xl p-4 sm:p-6">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-purple mb-2">
+              <i className="fas fa-user-shield mr-2"></i>Sign up / Log in
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <a href="/auth/google" className="cyber-border rounded-lg">
+                <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
+                  <i className="fab fa-google text-cyber-green text-xl mb-1 block"></i>
+                  <span className="text-xs font-orbitron">Google</span>
+                </div>
+              </a>
+              <a href="/auth/github" className="cyber-border rounded-lg">
+                <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
+                  <i className="fab fa-github text-cyber-cyan text-xl mb-1 block"></i>
+                  <span className="text-xs font-orbitron">GitHub</span>
+                </div>
+              </a>
+            </div>
+            <div className="text-[10px] text-gray-500 mt-2">OAuth requires configuration.</div>
           </div>
 
           {/* Download History */}

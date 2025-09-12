@@ -254,7 +254,7 @@ export default DemoComponent;`;
                   variant={bestMode ? "default" : "outline"}
                   className={`h-7 px-2 text-xs ${bestMode ? 'bg-cyber-green text-black' : ''}`}
                   onClick={() => setBestMode(v => !v)}
-                >Best Mode {bestMode ? 'On' : 'Off'}</Button>
+                >Beast Mode {bestMode ? 'On' : 'Off'}</Button>
               </div>
 
               <Textarea

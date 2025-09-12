@@ -355,7 +355,6 @@ export default DemoComponent;`;
               <span className="logo-face" aria-hidden />
             </div>
             {(() => {
-              const { data } = useAIStatus();
               const providers = [
                 { key: 'gemini', label: 'Gemini' },
                 { key: 'openai', label: 'OpenAI' },
@@ -366,7 +365,7 @@ export default DemoComponent;`;
               return (
                 <div className="space-y-1">
                   {providers.map((p) => {
-                    const configured = data?.providers?.[p.key as keyof typeof data.providers]?.configured;
+                    const configured = aiStatus?.providers?.[p.key as keyof typeof aiStatus.providers]?.configured;
                     return (
                       <div key={p.key} className="flex items-center justify-between">
                         <span className="text-sm">{p.label}</span>
@@ -376,7 +375,7 @@ export default DemoComponent;`;
                       </div>
                     );
                   })}
-                  <div className="text-[10px] text-gray-500 mt-2">{data?.timestamp ? `Updated: ${new Date(data.timestamp).toLocaleTimeString()}` : 'Checking...'}</div>
+                  <div className="text-[10px] text-gray-500 mt-2">{aiStatus?.timestamp ? `Updated: ${new Date(aiStatus.timestamp).toLocaleTimeString()}` : 'Checking...'}</div>
                 </div>
               );
             })()}

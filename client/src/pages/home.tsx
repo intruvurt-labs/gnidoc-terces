@@ -352,15 +352,32 @@ export default DemoComponent;`;
             <div className="flex justify-center mb-4">
               <span className="logo-face" aria-hidden />
             </div>
-            {(["gemini", "runway", "imagen"] as const).map((ai) => {
-              const status = getAIStatus(ai);
+            {(() => {
+              const { data } = useAIStatus();
+              const providers = [
+                { key: 'gemini', label: 'Gemini' },
+                { key: 'openai', label: 'OpenAI' },
+                { key: 'anthropic', label: 'Anthropic' },
+                { key: 'vision', label: 'Google Vision' },
+                { key: 'runway', label: 'Runway' },
+              ] as const;
               return (
-                <div key={ai} className="flex items-center justify-between">
-                  <span className="text-sm capitalize">{ai}</span>
-                  <span className={`text-xs ${status.color}`}>{status.status}</span>
+                <div className="space-y-1">
+                  {providers.map((p) => {
+                    const configured = data?.providers?.[p.key as keyof typeof data.providers]?.configured;
+                    return (
+                      <div key={p.key} className="flex items-center justify-between">
+                        <span className="text-sm">{p.label}</span>
+                        <span className={`text-xs ${configured ? 'text-cyber-green' : 'text-cyber-red'}`}>
+                          {configured ? 'Configured' : 'Missing'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div className="text-[10px] text-gray-500 mt-2">{data?.timestamp ? `Updated: ${new Date(data.timestamp).toLocaleTimeString()}` : 'Checking...'}</div>
                 </div>
               );
-            })}
+            })()}
           </div>
         </div>
       </div>

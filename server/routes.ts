@@ -73,6 +73,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "File not found" });
       }
 
+      // Record download event (best-effort)
+      try {
+        await storage.createDownload({
+          fileId: file.id,
+          projectId: file.projectId,
+          fileName: file.fileName,
+          size: file.size,
+          downloadUrl: file.downloadUrl ?? null,
+        } as any);
+      } catch {}
+
       if (file.binaryData) {
         // Handle binary files (images, etc.)
         const buffer = Buffer.from(file.binaryData, 'base64');
@@ -88,9 +99,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(404).json({ error: "File content not found" });
       }
     } catch (error) {
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Failed to download file" 
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to download file"
       });
+    }
+  });
+
+  // Download history
+  app.get('/api/downloads', async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(String(req.query.limit || '20'), 10) || 20, 100);
+      const items = await storage.getDownloads(limit);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to fetch downloads' });
     }
   });
 

@@ -17,7 +17,8 @@ function Router() {
     <CyberpunkLayout>
       <Switch>
         <Route path="/" component={Home} />
-        <Route path="/" component={EnhancedHome} />
+        <Route path="/settings" component={SettingsPage} />
+        <Route path="/security" component={SecurityDashboard} />
         <Route component={NotFound} />
       </Switch>
     </CyberpunkLayout>

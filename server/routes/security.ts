@@ -30,6 +30,8 @@ const securityRateLimit = createDynamicRateLimit({
 const scanRateLimit = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 3, // Very limited for expensive operations
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     error: 'Scan rate limit exceeded',
     hint: 'Security scans are resource-intensive. Please wait before scanning again.'

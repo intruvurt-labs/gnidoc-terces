@@ -26,6 +26,12 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <a href="/" className="cyber-border rounded-lg transition-all" data-testid="button-home">
+                <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
+                  <i className="fas fa-home text-cyber-cyan"></i>
+                  <span className="text-sm text-white">Home</span>
+                </div>
+              </a>
               <a href="/settings" className="cyber-border rounded-lg transition-all" data-testid="button-settings">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
                   <i className="fas fa-cog text-cyber-green"></i>

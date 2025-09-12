@@ -258,7 +258,7 @@ export function CopyrightNotice() {
           <strong>© 2025 Intruvurt Labs • Doble Duche.</strong> All rights reserved.
         </p>
         <p>
-          GINDOC™ is a trademark of Intruvurt Labs. Enterprise License.
+          gnidoc™ is a trademark of Intruvurt Labs. Enterprise License.
         </p>
         <p>
           <span className="inline-flex items-center space-x-4">

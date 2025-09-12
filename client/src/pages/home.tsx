@@ -366,16 +366,17 @@ export default DemoComponent;`;
                 <div className="space-y-1">
                   {providers.map((p) => {
                     const configured = aiStatus?.providers?.[p.key as keyof typeof aiStatus.providers]?.configured;
+                    const loading = typeof configured === 'undefined';
                     return (
                       <div key={p.key} className="flex items-center justify-between">
                         <span className="text-sm">{p.label}</span>
-                        <span className={`text-xs ${configured ? 'text-cyber-green' : 'text-cyber-red'}`}>
-                          {configured ? 'Configured' : 'Missing'}
+                        <span className={`text-xs ${loading ? 'text-gray-400' : configured ? 'text-cyber-green' : 'text-cyber-red'}`}>
+                          {loading ? 'Checking…' : configured ? 'Configured' : 'Missing'}
                         </span>
                       </div>
                     );
                   })}
-                  <div className="text-[10px] text-gray-500 mt-2">{aiStatus?.timestamp ? `Updated: ${new Date(aiStatus.timestamp).toLocaleTimeString()}` : 'Checking...'}</div>
+                  <div className="text-[10px] text-gray-500 mt-2">{aiStatus?.timestamp ? `Updated: ${new Date(aiStatus.timestamp).toLocaleTimeString()}` : 'Checking…'}</div>
                 </div>
               );
             })()}

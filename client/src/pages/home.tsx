@@ -292,12 +292,19 @@ export default DemoComponent;`;
                 </div>
               )}
               {latestProject.type === 'image' && latestProject.result && typeof latestProject.result === 'object' && 'imageData' in latestProject.result && (
-                <div className="flex items-center justify-center">
+                <div className="relative flex items-center justify-center">
                   <img
                     src={`data:image/png;base64,${String((latestProject.result as any).imageData)}`}
                     alt="Generated"
                     className="max-h-96 rounded border border-cyber-cyan/30"
                   />
+                  <a
+                    href={`data:image/png;base64,${String((latestProject.result as any).imageData)}`}
+                    download="generated-image.png"
+                    className="absolute top-2 right-2 glass-button px-3 py-1 rounded"
+                  >
+                    <i className="fas fa-download mr-2"></i>Download PNG
+                  </a>
                 </div>
               )}
               {latestProject.type === 'video' && latestProject.result && typeof latestProject.result === 'object' && (

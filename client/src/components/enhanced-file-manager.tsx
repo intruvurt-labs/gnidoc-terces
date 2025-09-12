@@ -137,8 +137,7 @@ export function EnhancedFileManager({
     { format: 'html', icon: FileText, label: 'HTML Page', description: 'Web-based report' },
     { format: 'md', icon: FileText, label: 'Markdown', description: 'Documentation format' },
     { format: 'json', icon: FileSpreadsheet, label: 'JSON Data', description: 'Raw data export' },
-    { format: 'csv', icon: FileSpreadsheet, label: 'CSV File', description: 'Spreadsheet data' },
-    { format: 'zip', icon: Archive, label: 'ZIP Archive', description: 'Complete package' }
+    { format: 'csv', icon: FileSpreadsheet, label: 'CSV File', description: 'Spreadsheet data' }
   ];
 
   return (

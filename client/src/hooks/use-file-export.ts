@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useToast } from './use-toast';
 
 export interface ExportOptions {
-  format: 'pdf' | 'docx' | 'html' | 'md' | 'txt' | 'json' | 'csv' | 'zip';
+  format: 'pdf' | 'docx' | 'html' | 'md' | 'txt' | 'json' | 'csv';
   includeMetadata?: boolean;
   includeAnalysis?: boolean;
   includeImages?: boolean;
@@ -97,9 +97,6 @@ export function useFileExport() {
           break;
         case 'csv':
           ({ blob, filename } = await generateCSV(exportData, options));
-          break;
-        case 'zip':
-          ({ blob, filename } = await generateZip(exportData, options));
           break;
         default:
           throw new Error(`Unsupported export format: ${options.format}`);
@@ -508,18 +505,6 @@ ${data.copyright}
     return { blob, filename };
   };
 
-  /**
-   * Generate ZIP export with multiple files
-   */
-  const generateZip = async (data: any, options: ExportOptions): Promise<{ blob: Blob; filename: string }> => {
-    // For ZIP generation, we'd use a library like JSZip
-    // This is a simplified placeholder
-    const zipContent = JSON.stringify(data, null, 2);
-    const blob = new Blob([zipContent], { type: 'application/zip' });
-    const filename = `gindoc-complete-${Date.now()}.zip`;
-
-    return { blob, filename };
-  };
 
   /**
    * Generate HTML report content

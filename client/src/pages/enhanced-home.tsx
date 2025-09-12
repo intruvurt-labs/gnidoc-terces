@@ -73,9 +73,9 @@ export function EnhancedHome() {
     const interval = setInterval(() => {
       setSystemMetrics(prev => ({
         ...prev,
-        activeScans: Math.max(5, prev.activeScans + Math.floor(Math.random() * 3) - 1),
-        threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 2),
-        apiCalls: prev.apiCalls + Math.floor(Math.random() * 50),
+        activeScans: Math.max(5, prev.activeScans + (((Date.now()/5000)|0) % 3) - 1),
+        threatsBlocked: prev.threatsBlocked + (((Date.now()/5000)|0) % 2),
+        apiCalls: prev.apiCalls + (((Date.now()/1000)|0) % 50),
       }));
     }, 5000);
 

@@ -28,7 +28,7 @@ export function useAIGeneration() {
       let currentProgress = 5;
       const progressInterval = setInterval(() => {
         setState(prev => {
-          const increment = Math.random() * 8 + 2; // 2-10% increments
+          const t = Date.now() % 1000; const increment = 2 + (t / 1000) * 8;
           currentProgress = Math.min(prev.progress + increment, 85);
 
           let newStatus = prev.status;

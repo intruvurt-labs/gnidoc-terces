@@ -165,16 +165,16 @@ export function SecurityDashboard() {
       // Update metrics randomly
       setMetrics(prev => ({
         ...prev,
-        overallScore: Math.max(70, prev.overallScore + (Math.random() - 0.5) * 2),
+        overallScore: Math.max(70, prev.overallScore + (((Date.now()/3000)%2)-1)),
         threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 3)
       }));
 
       // Update real-time stats
       setRealTimeStats(prev => ({
         ...prev,
-        requestsPerSecond: 8 + Math.random() * 10,
-        blockedRequests: prev.blockedRequests + Math.floor(Math.random() * 2),
-        suspiciousActivity: Math.max(0, prev.suspiciousActivity + Math.floor(Math.random() * 3) - 1)
+        requestsPerSecond: 8 + ((Date.now() / 1000) % 10),
+        blockedRequests: prev.blockedRequests + (((Date.now()/3000)|0) % 2),
+        suspiciousActivity: Math.max(0, prev.suspiciousActivity + ((((Date.now()/3000)|0) % 3) - 1))
       }));
     }, 3000);
 

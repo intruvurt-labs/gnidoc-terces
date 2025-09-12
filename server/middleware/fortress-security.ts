@@ -623,12 +623,20 @@ export class FortressSecurityEngine extends EventEmitter {
   }
 
   private async analyzeGeoLocation(ip: string) {
-    // Simulate geo-location analysis
+    // Deterministic geo flags based on IP hash
+    const str = ip || '';
+    let hash = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    const torFlag = (hash & 0xff) < 13; // ~5%
+    const vpnFlag = ((hash >>> 8) & 0xff) < 38; // ~15%
     return {
       country: 'US',
       region: 'California',
-      isTor: Math.random() < 0.05, // 5% chance
-      isVPN: Math.random() < 0.15  // 15% chance
+      isTor: torFlag,
+      isVPN: vpnFlag
     };
   }
 

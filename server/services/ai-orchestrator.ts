@@ -123,7 +123,7 @@ async function generateSEOName(prompt: string, filenames?: string[]): Promise<st
     if (text) return text.replace(/^["']|["']$/g, '').slice(0, 60);
   } catch {}
   const base = 'Nebula';
-  const uniq = Math.random().toString(36).slice(2, 6);
+  const uniq = (globalThis as any).crypto?.randomUUID ? (globalThis as any).crypto.randomUUID().slice(0, 4) : (Date.now().toString(36).slice(-4));
   return `${base}-${uniq}`;
 }
 

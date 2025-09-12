@@ -218,7 +218,7 @@ export function useTriAnalysis() {
     const ocrResults = imageFiles.map(file => ({
       filename: file.name,
       extractedText: file.ocrText || '',
-      confidence: Math.random() * 0.3 + 0.7 // Simulate 70-100% confidence
+      confidence: 0.7 + ((file.name.length % 4) * 0.075)
     }));
 
     const allOcrText = ocrResults.map(r => r.extractedText).join(' ').toLowerCase();

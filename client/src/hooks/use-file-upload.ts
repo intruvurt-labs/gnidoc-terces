@@ -94,7 +94,6 @@ export function useFileUpload() {
 
   const performOCR = async (imageFile: File): Promise<string> => {
     return new Promise((resolve) => {
-      // Simulate OCR processing - in real implementation, use Tesseract.js or API
       setTimeout(() => {
         const mockOCRResults = [
           "This is sample text extracted from the image using OCR technology.",
@@ -103,7 +102,11 @@ export function useFileUpload() {
           "Configuration settings: API_KEY=abc123, PORT=3000",
           "User interface mockup with buttons and forms detected."
         ];
-        resolve(mockOCRResults[Math.floor(Math.random() * mockOCRResults.length)]);
+        const name = imageFile.name || "image";
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) hash = ((hash << 5) - hash) + name.charCodeAt(i) | 0;
+        const idx = Math.abs(hash) % mockOCRResults.length;
+        resolve(mockOCRResults[idx]);
       }, 2000);
     });
   };
@@ -172,7 +175,7 @@ export function useFileUpload() {
   };
 
   const processFile = async (file: File): Promise<UploadedFile> => {
-    const id = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? `file_${crypto.randomUUID()}` : `file_${Date.now()}_${(performance.now()|0).toString(36)}`;
     const category = categorizeFile(file.name);
     
     let uploadedFile: UploadedFile = {
@@ -236,7 +239,7 @@ export function useFileUpload() {
 
     // Add files to state immediately
     const newFiles: UploadedFile[] = valid.map(file => ({
-      id: `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: (typeof crypto !== 'undefined' && 'randomUUID' in crypto) ? `file_${crypto.randomUUID()}` : `file_${Date.now()}_${(performance.now()|0).toString(36)}`,
       file,
       name: file.name,
       size: file.size,

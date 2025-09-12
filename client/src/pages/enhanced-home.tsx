@@ -33,6 +33,7 @@ import { useLocation } from 'wouter';
 import { useRefactor } from '@/hooks/use-refactor';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { queryClient } from '@/lib/queryClient';
 
 export function EnhancedHome() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -131,7 +132,6 @@ export function EnhancedHome() {
       await runRefactor(latest.id, prompt);
       setRefactorOpen(false);
       // Refresh files list
-      // @ts-ignore
       queryClient.invalidateQueries({ queryKey: ["/api/projects", latest.id, "files"] });
     } catch (error) {
       console.error('Refactor failed:', error);

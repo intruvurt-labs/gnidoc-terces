@@ -7,15 +7,29 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import React from 'react';
 
 export default function SettingsPage() {
   const { data } = useAIStatus();
   const { preferences, setPreferences } = usePreferences();
+  const [justSaved, setJustSaved] = React.useState(false);
+
+  React.useEffect(() => {
+    setJustSaved(true);
+    const t = setTimeout(() => setJustSaved(false), 1200);
+    return () => clearTimeout(t);
+  }, [preferences]);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-orbitron text-cyber-green">Settings</h1>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-orbitron text-cyber-green">Settings</h1>
+          {justSaved && (
+            <Badge className="bg-cyber-green/20 text-cyber-green border-cyber-green/40">Saved</Badge>
+          )}
+        </div>
         <a href="/" className="cyber-border rounded-lg" data-testid="button-back-home">
           <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
             <i className="fas fa-arrow-left text-cyber-cyan"></i>

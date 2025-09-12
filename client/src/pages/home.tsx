@@ -315,11 +315,6 @@ export default DemoComponent;`;
                 className="w-full h-40 bg-gray-800 border border-gray-600 rounded-lg p-4 text-white font-fira text-sm focus:border-cyber-green focus:ring-2 focus:ring-cyber-green/20"
               />
 
-              {/* Tagline above buttons */}
-              <div className="my-2">
-                <h3 className="text-xl sm:text-2xl font-orbitron font-bold text-cyber-green text-center">real ai devs build here</h3>
-              </div>
-
               {/* Generation Buttons */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
                 {[

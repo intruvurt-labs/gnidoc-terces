@@ -26,18 +26,18 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="cyber-border rounded-lg transition-all" data-testid="button-settings">
+              <a href="/settings" className="cyber-border rounded-lg transition-all" data-testid="button-settings">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
                   <i className="fas fa-cog text-cyber-green"></i>
                   <span className="text-sm text-white">Settings</span>
                 </div>
-              </button>
-              <button className="cyber-border-red rounded-lg transition-all" data-testid="button-security-scan">
+              </a>
+              <a href="/security" className="cyber-border-red rounded-lg transition-all" data-testid="button-security-scan">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center space-x-2">
                   <i className="fas fa-shield-alt text-cyber-red"></i>
                   <span className="text-sm text-white">Security Scan</span>
                 </div>
-              </button>
+              </a>
             </div>
           </div>
         </div>

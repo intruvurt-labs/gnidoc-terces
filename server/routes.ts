@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { aiOrchestrator } from "./services/ai-orchestrator";
 import { aiGenerationRequestSchema } from "@shared/schema";
 import { securityRoutes } from "./routes/security";
+import { refactorRoutes } from "./routes/refactor";
 import { z } from "zod";
 import { createDynamicRateLimit } from "./middleware/fortress-security";
 
@@ -11,6 +12,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register security routes first (they have their own middleware)
   app.use("/api/security", securityRoutes);
+  // Refactor routes (privacy-preserving planning + local execution)
+  app.use("/api/refactor", refactorRoutes);
 
   // Rate limit for generation endpoint (heavy operation)
   const generateRateLimit = createDynamicRateLimit({

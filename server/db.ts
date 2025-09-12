@@ -131,11 +131,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDownloads(limit = 20): Promise<Download[]> {
-    return await db
-      .select()
-      .from(downloads)
-      .orderBy(desc(downloads.downloadedAt))
-      .limit(limit);
+    try {
+      return await db
+        .select()
+        .from(downloads)
+        .orderBy(desc(downloads.downloadedAt))
+        .limit(limit);
+    } catch (error: any) {
+      const msg = typeof error?.message === 'string' ? error.message : '';
+      if (msg.includes('relation "downloads" does not exist')) {
+        return [];
+      }
+      console.error('Error getting downloads:', error);
+      throw new Error('Failed to get downloads');
+    }
   }
 
   // Security scan methods

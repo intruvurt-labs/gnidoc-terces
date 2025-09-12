@@ -6,7 +6,13 @@ import * as path from "path";
 import fetch from "node-fetch";
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY || ""
+  apiKey:
+    process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ||
+    process.env.GOOGLE_GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.NEXT_PUBLIC_GOOGLE_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    ""
 });
 
 export interface GenerationResult {
@@ -19,7 +25,7 @@ export interface GenerationResult {
 // Multi-provider helpers
 async function callAnthropic(prompt: string, systemPrompt: string): Promise<string | null> {
   try {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
     if (!apiKey) return null;
     const resp = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -154,7 +160,7 @@ export class AIOrchestrator {
           const data: any = await resp.json();
           const b64 = data?.data?.[0]?.b64_json;
           if (b64) {
-            const visionKey = process.env.GOOGLE_VISION_KEY;
+            const visionKey = process.env.GOOGLE_VISION_KEY || process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
             if (visionKey) {
               fetch(`https://vision.googleapis.com/v1/images:annotate?key=${visionKey}`, {
                 method: "POST",
@@ -192,7 +198,7 @@ export class AIOrchestrator {
 
   async generateVideo(prompt: string): Promise<string> {
     try {
-      const runwayKey = process.env.RUNWAY_ML_API_KEY;
+      const runwayKey = process.env.RUNWAY_ML_API_KEY || process.env.NEXT_PUBLIC_RUNWAY_ML_API_KEY;
       if (runwayKey) {
         const resp = await fetch("https://api.runwayml.com/v1/videos", {
           method: "POST",

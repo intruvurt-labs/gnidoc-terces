@@ -79,6 +79,8 @@ export function EnhancedHome() {
     setUploadedFiles(files);
   };
 
+  const [, navigate] = useLocation();
+
   const handleRunAnalysis = async () => {
     if (uploadedFiles.length === 0) {
       alert('Please upload some files first');
@@ -86,7 +88,22 @@ export function EnhancedHome() {
     }
 
     try {
-      await performTriAnalysis(uploadedFiles);
+      const result = await performTriAnalysis(uploadedFiles);
+
+      // Aggregate code from uploaded files for probable scan
+      const allCode = uploadedFiles
+        .filter(f => f.category === 'code' && (f.content || '').length > 0)
+        .map(f => String(f.content))
+        .join('\n\n');
+
+      if (allCode.length > 0) {
+        // Run enhanced security scan using best (military-grade) options
+        await performEnhancedScan(allCode, '/tmp/scan', { scanMode: 'MILITARY_GRADE' });
+        // Navigate to Security page with scans tab open
+        navigate('/security?tab=scans');
+      }
+
+      return result;
     } catch (error) {
       console.error('Analysis failed:', error);
     }

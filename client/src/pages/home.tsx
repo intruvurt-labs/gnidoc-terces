@@ -9,6 +9,7 @@ import { useAIGeneration } from "@/hooks/use-ai-generation";
 import { useConnectionHealth } from "@/hooks/use-connection-health";
 import { useSecurityScan } from "@/hooks/use-security-scan";
 import { useTriAnalysis } from "@/hooks/use-tri-analysis";
+import { useAIStatus } from "@/hooks/use-ai-status";
 import { type UploadedFile } from "@/hooks/use-file-upload";
 import FileManager from "@/components/file-manager";
 import TriAnalysisResults from "@/components/tri-analysis-results";

@@ -488,114 +488,44 @@ export function EnhancedHome() {
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-orbitron font-bold text-cyber-red">
-                    Fortress Elite Security
+                    Refactor Workspace
                   </h2>
-                  <Button
-                    onClick={handleSecurityScan}
-                    disabled={uploadedFiles.filter(f => f.category === 'code').length === 0 || isEnhancedScanning}
-                    className="glass-button"
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    {isEnhancedScanning ? 'Scanning...' : 'Military Scan'}
-                  </Button>
+                  <Dialog open={refactorOpen} onOpenChange={setRefactorOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="glass-button">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Refactor
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-dark-panel border-cyber-red/30">
+                      <DialogHeader>
+                        <DialogTitle className="text-cyber-red">Refactor with Gemini (plan only)</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-400">Describe the refactor (e.g., "Move components to src/components and convert JS to TS"). No code is sent to external services.</p>
+                        <Textarea value={refactorPrompt} onChange={(e) => setRefactorPrompt(e.target.value)} placeholder="Your refactor prompt" />
+                      </div>
+                      <DialogFooter>
+                        <Button onClick={handleRefactor} disabled={isRefactoring}>
+                          {isRefactoring ? 'Refactoring…' : 'Apply'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
-                {enhancedScanResult ? (
-                  <div className="space-y-6">
-                    <Alert className="bg-cyber-green/10 border-cyber-green/30">
-                      <Shield className="h-4 w-4 text-cyber-green" />
-                      <AlertDescription className="text-cyber-green">
-                        Enhanced security scan completed with {enhancedScanResult.finalStatus} status.
-                        Overall security score: {enhancedScanResult.finalScore}%
-                      </AlertDescription>
-                    </Alert>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <Card className="bg-dark-panel border-cyber-green/30">
-                        <CardHeader>
-                          <CardTitle className="text-cyber-green">Fortress Scanner</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Status</span>
-                              <Badge className={getStatusColor(enhancedScanResult.fortressResults.status)}>
-                                {enhancedScanResult.fortressResults.status}
-                              </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Score</span>
-                              <span className="font-bold">{enhancedScanResult.fortressResults.overallScore}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Threats</span>
-                              <span className="text-cyber-red">{enhancedScanResult.fortressResults.threatsFound.length}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-dark-panel border-cyber-cyan/30">
-                        <CardHeader>
-                          <CardTitle className="text-cyber-cyan">Threat Intelligence</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Risk Score</span>
-                              <span className="font-bold">{enhancedScanResult.threatIntelResults.riskScore}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Intel Threats</span>
-                              <span className="text-cyber-red">{enhancedScanResult.threatIntelResults.threats.length}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Recommendations</span>
-                              <span>{enhancedScanResult.threatIntelResults.recommendations.length}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-dark-panel border-cyber-purple/30">
-                        <CardHeader>
-                          <CardTitle className="text-cyber-purple">Business Impact</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Financial Risk</span>
-                              <span className="text-cyber-red">{enhancedScanResult.businessImpact.financialRisk}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Operational Risk</span>
-                              <span className="text-cyber-yellow">{enhancedScanResult.businessImpact.operationalRisk}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Compliance Risk</span>
-                              <span className="text-cyber-purple">{enhancedScanResult.businessImpact.complianceRisk}%</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                {isRefactoring ? (
+                  <Alert className="bg-cyber-yellow/10 border-cyber-yellow/30">
+                    <Shield className="h-4 w-4 text-cyber-yellow" />
+                    <AlertDescription className="text-cyber-yellow">
+                      Applying refactor plan…
+                    </AlertDescription>
+                  </Alert>
                 ) : (
                   <Card className="bg-dark-panel border-cyber-red/30">
-                    <CardContent className="text-center py-12">
-                      <Shield className="w-16 h-16 text-cyber-red mx-auto mb-4 opacity-50" />
-                      <h3 className="text-lg font-orbitron text-cyber-red mb-2">
-                        No Security Scan Results
-                      </h3>
-                      <p className="text-gray-400 mb-4">
-                        Upload code files and run a security scan to see detailed threat analysis.
-                      </p>
-                      <Button
-                        onClick={() => setActiveTab('files')}
-                        className="glass-button"
-                      >
-                        Upload Code Files
-                      </Button>
+                    <CardContent className="py-6">
+                      <h3 className="text-lg font-orbitron text-cyber-red mb-2">Refactor</h3>
+                      <p className="text-gray-400 text-sm">Use the Refactor button to plan changes privately and apply them locally.</p>
                     </CardContent>
                   </Card>
                 )}

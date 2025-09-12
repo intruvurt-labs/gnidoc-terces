@@ -1,5 +1,6 @@
 import React, { type ReactNode } from "react";
 import MatrixBackground from "@/components/background/matrix-background";
+import { CopyrightNotice } from "@/components/seo/seo-manager";
 
 interface CyberpunkLayoutProps {
   children: ReactNode;

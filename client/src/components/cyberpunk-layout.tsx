@@ -15,11 +15,11 @@ export default function CyberpunkLayout({ children }: CyberpunkLayoutProps) {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="cyber-border rounded-lg">
+              <a href="/" className="cyber-border rounded-lg" aria-label="Go to Home">
                 <div className="bg-dark-panel px-4 py-2 rounded-lg flex items-center">
                   <span className="brand-bevel text-2xl md:text-3xl" aria-label="gnidoC Terces">gnidoC Terces</span>
                 </div>
-              </div>
+              </a>
               <div className="flex flex-col">
                 <span className="text-cyber-cyan font-orbitron text-sm">Multi-AI Orchestration Platform</span>
                 <span className="text-xs text-gray-400">by Intruvurt Labs • Doble Duche</span>

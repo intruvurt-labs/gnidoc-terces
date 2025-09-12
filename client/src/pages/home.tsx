@@ -302,6 +302,17 @@ export default DemoComponent;`;
                   {(latestProject.result as any).videoData}
                 </div>
               )}
+              {latestProject.type === 'security' && latestProject.result && typeof latestProject.result === 'object' && (
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-cyber-red font-orbitron">Security Analysis</span>
+                    <span className="text-xs text-gray-400">AI</span>
+                  </div>
+                  <pre className="bg-dark-card border border-gray-600 rounded p-3 overflow-auto max-h-96 text-gray-300">
+{JSON.stringify(latestProject.result, null, 2)}
+                  </pre>
+                </div>
+              )}
             </div>
           )}
 

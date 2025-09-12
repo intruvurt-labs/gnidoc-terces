@@ -16,16 +16,90 @@ export interface GenerationResult {
   error?: string;
 }
 
+// Multi-provider helpers
+async function callAnthropic(prompt: string, systemPrompt: string): Promise<string | null> {
+  try {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) return null;
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-sonnet-latest",
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    if (!resp.ok) return null;
+    const data: any = await resp.json();
+    const text = data?.content?.[0]?.text || data?.content?.map((p: any) => p.text).join("\n");
+    return text || null;
+  } catch {
+    return null;
+  }
+}
+
+async function callOpenAI(prompt: string, systemPrompt: string): Promise<string | null> {
+  try {
+    const apiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    if (!apiKey) return null;
+    const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.2
+      })
+    });
+    if (!resp.ok) return null;
+    const data: any = await resp.json();
+    return data?.choices?.[0]?.message?.content || null;
+  } catch {
+    return null;
+  }
+}
+
+async function callGeminiText(prompt: string, systemPrompt: string): Promise<string | null> {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-pro",
+      config: { systemInstruction: systemPrompt },
+      contents: prompt,
+    });
+    return response.text || null;
+  } catch {
+    return null;
+  }
+}
+
+function selectBestCode(candidates: Array<{ provider: string; text: string }>): string | null {
+  if (candidates.length === 0) return null;
+  const scored = candidates.map(c => {
+    const fenceCount = (c.text.match(/```/g) || []).length;
+    const lengthScore = Math.min(1, c.text.length / 8000);
+    const typesCount = (c.text.match(/```\w+/g) || []).length;
+    const score = fenceCount * 2 + typesCount * 1.5 + lengthScore;
+    return { ...c, score } as any;
+  }).sort((a, b) => b.score - a.score);
+  return scored[0].text;
+}
+
 export class AIOrchestrator {
   
   async generateCode(prompt: string, options?: any): Promise<string> {
     try {
-      // Check if API key is available
-      if (!process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY && !process.env.GOOGLE_API_KEY && !process.env.GEMINI_API_KEY) {
-        // Return demo code when API key is not configured
-        return this.generateDemoCode(prompt, options);
-      }
-
       const systemPrompt = `You are an expert full-stack developer. Generate complete, production-ready code based on the user's requirements.
       Include proper error handling, modern best practices, and comprehensive functionality.
       Respond with clean, well-documented code that can be immediately deployed.
@@ -41,59 +115,60 @@ export class AIOrchestrator {
       ${options?.framework ? `Framework: ${options.framework}` : ''}
       ${options?.includeTests ? 'Include unit tests and testing setup' : ''}`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-pro",
-        config: {
-          systemInstruction: systemPrompt,
-        },
-        contents: prompt,
-      });
+      const settled = await Promise.allSettled([
+        callGeminiText(prompt, systemPrompt).then(text => ({ provider: 'gemini', text })),
+        callOpenAI(prompt, systemPrompt).then(text => ({ provider: 'openai', text })),
+        callAnthropic(prompt, systemPrompt).then(text => ({ provider: 'anthropic', text }))
+      ]);
 
-      return response.text || "Failed to generate code";
+      const candidates = settled
+        .filter(r => r.status === 'fulfilled' && (r as any).value.text)
+        .map((r: any) => ({ provider: r.value.provider, text: r.value.text as string }));
+
+      const best = selectBestCode(candidates);
+      if (best) return best;
+      return this.generateDemoCode(prompt, options);
     } catch (error) {
-      console.warn('Google AI generation failed, falling back to demo:', error);
       return this.generateDemoCode(prompt, options);
     }
   }
 
   async generateImage(prompt: string): Promise<string> {
     try {
-      const tempDir = path.join(process.cwd(), 'temp');
-      if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, { recursive: true });
-      }
-      
-      const imagePath = path.join(tempDir, `generated_${Date.now()}.png`);
+      const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+      if (!openaiKey) throw new Error("OpenAI API key missing");
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash-preview-image-generation",
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        config: {
-          responseModalities: [Modality.TEXT, Modality.IMAGE],
+      const resp = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${openaiKey}`,
         },
+        body: JSON.stringify({
+          model: "gpt-image-1",
+          prompt,
+          size: "1024x1024",
+          response_format: "b64_json"
+        })
       });
+      if (!resp.ok) throw new Error(`OpenAI image generation failed`);
+      const data: any = await resp.json();
+      const b64 = data?.data?.[0]?.b64_json;
+      if (!b64) throw new Error("No image data");
 
-      const candidates = response.candidates;
-      if (!candidates || candidates.length === 0) {
-        throw new Error("No image generated");
+      // Non-blocking Google Vision analysis
+      const visionKey = process.env.GOOGLE_VISION_KEY;
+      if (visionKey) {
+        fetch(`https://vision.googleapis.com/v1/images:annotate?key=${visionKey}`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            requests: [{ image: { content: b64 }, features: [{ type: "LABEL_DETECTION", maxResults: 5 }] }]
+          })
+        }).catch(() => {});
       }
 
-      const content = candidates[0].content;
-      if (!content || !content.parts) {
-        throw new Error("No content in response");
-      }
-
-      for (const part of content.parts) {
-        if (part.inlineData && part.inlineData.data) {
-          const imageData = Buffer.from(part.inlineData.data, "base64");
-          fs.writeFileSync(imagePath, imageData);
-          
-          // Return base64 data for storage
-          return part.inlineData.data;
-        }
-      }
-
-      throw new Error("No image data found in response");
+      return b64;
     } catch (error) {
       throw new Error(`Image generation failed: ${error}`);
     }
@@ -101,8 +176,21 @@ export class AIOrchestrator {
 
   async generateVideo(prompt: string): Promise<string> {
     try {
-      // Runway ML API integration would go here
-      // For now, return a simulated response
+      const runwayKey = process.env.RUNWAY_ML_API_KEY;
+      if (runwayKey) {
+        const resp = await fetch("https://api.runwayml.com/v1/videos", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${runwayKey}`
+          },
+          body: JSON.stringify({ prompt, model: "gen-3-alpha" })
+        });
+        if (resp.ok) {
+          const data: any = await resp.json();
+          return JSON.stringify({ provider: "runway", jobId: data.id || data.job_id || "unknown", status: data.status || "submitted" });
+        }
+      }
       const simulatedVideoData = `Video generation request processed for: ${prompt}`;
       return simulatedVideoData;
     } catch (error) {
@@ -114,55 +202,24 @@ export class AIOrchestrator {
     try {
       const systemPrompt = `You are a cybersecurity expert specializing in code security analysis and blockchain security.
       Analyze the provided code for security vulnerabilities, code quality issues, and blockchain-specific security concerns.
-      
-      Provide a detailed analysis in JSON format with:
-      - vulnerabilities: array of found security issues with severity levels
-      - codeQuality: overall grade (A+, A, B+, B, C+, C, D, F)
-      - blockchainSecurity: status (SECURE, WARNING, CRITICAL)
-      - recommendations: array of actionable security improvements
-      
-      Focus on:
-      - Common security vulnerabilities (XSS, SQL injection, etc.)
-      - Smart contract vulnerabilities (reentrancy, overflow, etc.)
-      - Authentication and authorization issues
-      - Data validation and sanitization
-      - Cryptographic implementation issues`;
+      Provide JSON with vulnerabilities[], codeQuality, blockchainSecurity, recommendations[]`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-pro",
-        config: {
-          systemInstruction: systemPrompt,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              vulnerabilities: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    type: { type: "string" },
-                    severity: { type: "string" },
-                    description: { type: "string" },
-                    line: { type: "number" },
-                    recommendation: { type: "string" }
-                  }
-                }
-              },
-              codeQuality: { type: "string" },
-              blockchainSecurity: { type: "string" },
-              recommendations: {
-                type: "array",
-                items: { type: "string" }
-              }
-            }
-          }
-        },
-        contents: `Analyze this code for security vulnerabilities:\n\n${code}`,
-      });
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          config: { systemInstruction: systemPrompt, responseMimeType: "application/json" },
+          contents: `Analyze this code for security vulnerabilities:\n\n${code}`,
+        });
+        const result = JSON.parse(response.text || '{}');
+        return result;
+      } catch {}
 
-      const result = JSON.parse(response.text || '{}');
-      return result;
+      const [anth, oai] = await Promise.all([
+        callAnthropic(`Analyze this code and return JSON with keys vulnerabilities, codeQuality, blockchainSecurity, recommendations.\n\n${code}`, systemPrompt),
+        callOpenAI(`Analyze this code and return JSON with keys vulnerabilities, codeQuality, blockchainSecurity, recommendations.\n\n${code}`, systemPrompt)
+      ]);
+      const text = anth || oai || '{}';
+      try { return JSON.parse(text); } catch { return { error: 'failed_to_parse', raw: text }; }
     } catch (error) {
       throw new Error(`Security scan failed: ${error}`);
     }

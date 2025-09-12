@@ -11,6 +11,17 @@ import EnhancedHome from "@/pages/enhanced-home";
 import Home from "@/pages/home";
 import SettingsPage from "@/pages/settings";
 import { SecurityDashboard } from "@/components/security/security-dashboard";
+import React from "react";
+
+function OAuthRedirect({ provider }: { provider: 'google' | 'github' }) {
+  React.useEffect(() => {
+    // Force full navigation to server route for OAuth
+    window.location.href = `/auth/${provider}`;
+  }, [provider]);
+  return (
+    <div className="p-6 text-center text-sm text-gray-400">Redirecting to {provider}…</div>
+  );
+}
 
 function Router() {
   return (
@@ -19,6 +30,8 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/settings" component={SettingsPage} />
         <Route path="/security" component={SecurityDashboard} />
+        <Route path="/auth/google">{() => <OAuthRedirect provider="google" />}</Route>
+        <Route path="/auth/github">{() => <OAuthRedirect provider="github" />}</Route>
         <Route component={NotFound} />
       </Switch>
     </CyberpunkLayout>

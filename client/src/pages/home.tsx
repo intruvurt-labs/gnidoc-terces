@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import LoadingModal from "@/components/ui/loading-modal";
 import CodeEditor from "@/components/ui/code-editor";
 import FileCard from "@/components/ui/file-card";

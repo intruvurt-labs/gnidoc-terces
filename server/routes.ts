@@ -5,14 +5,24 @@ import { aiOrchestrator } from "./services/ai-orchestrator";
 import { aiGenerationRequestSchema } from "@shared/schema";
 import { securityRoutes } from "./routes/security";
 import { z } from "zod";
+import { createDynamicRateLimit } from "./middleware/fortress-security";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register security routes first (they have their own middleware)
   app.use("/api/security", securityRoutes);
 
+  // Rate limit for generation endpoint (heavy operation)
+  const generateRateLimit = createDynamicRateLimit({
+    windowMs: 60_000,
+    max: 5,
+    message: { error: 'Generation rate limit exceeded', retryAfter: 60 },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
   // Generate content with AI
-  app.post("/api/generate", async (req, res) => {
+  app.post("/api/generate", generateRateLimit, async (req, res) => {
     try {
       const validatedRequest = aiGenerationRequestSchema.parse(req.body);
       const result = await aiOrchestrator.processRequest(validatedRequest);

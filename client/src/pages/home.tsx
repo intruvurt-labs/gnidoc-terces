@@ -175,6 +175,11 @@ export default DemoComponent;`;
     return { status: "STANDBY", color: "text-gray-500" };
   };
 
+  // Initialize Beast Mode from cookie
+  useEffect(() => {
+    try { const v = getCookie('beastMode'); if (v === 'true' || v === 'false') setBestMode(v === 'true'); } catch {}
+  }, []);
+
   return (
     <>
       <LoadingModal isOpen={isGenerating} progress={progress} status={status} />

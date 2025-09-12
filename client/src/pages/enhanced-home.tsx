@@ -29,6 +29,8 @@ import {
   Rocket
 } from 'lucide-react';
 
+import { useLocation } from 'wouter';
+
 export function EnhancedHome() {
   const [activeTab, setActiveTab] = useState('overview');
   const [uploadedFiles, setUploadedFiles] = useState([]);

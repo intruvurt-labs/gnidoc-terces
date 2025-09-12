@@ -136,39 +136,55 @@ export class AIOrchestrator {
   async generateImage(prompt: string): Promise<string> {
     try {
       const openaiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-      if (!openaiKey) throw new Error("OpenAI API key missing");
-
-      const resp = await fetch("https://api.openai.com/v1/images/generations", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${openaiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-image-1",
-          prompt,
-          size: "1024x1024",
-          response_format: "b64_json"
-        })
-      });
-      if (!resp.ok) throw new Error(`OpenAI image generation failed`);
-      const data: any = await resp.json();
-      const b64 = data?.data?.[0]?.b64_json;
-      if (!b64) throw new Error("No image data");
-
-      // Non-blocking Google Vision analysis
-      const visionKey = process.env.GOOGLE_VISION_KEY;
-      if (visionKey) {
-        fetch(`https://vision.googleapis.com/v1/images:annotate?key=${visionKey}`, {
+      if (openaiKey) {
+        const resp = await fetch("https://api.openai.com/v1/images/generations", {
           method: "POST",
-          headers: { "content-type": "application/json" },
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${openaiKey}`,
+          },
           body: JSON.stringify({
-            requests: [{ image: { content: b64 }, features: [{ type: "LABEL_DETECTION", maxResults: 5 }] }]
+            model: "gpt-image-1",
+            prompt,
+            size: "1024x1024",
+            response_format: "b64_json"
           })
-        }).catch(() => {});
+        });
+        if (resp.ok) {
+          const data: any = await resp.json();
+          const b64 = data?.data?.[0]?.b64_json;
+          if (b64) {
+            const visionKey = process.env.GOOGLE_VISION_KEY;
+            if (visionKey) {
+              fetch(`https://vision.googleapis.com/v1/images:annotate?key=${visionKey}`, {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({
+                  requests: [{ image: { content: b64 }, features: [{ type: "LABEL_DETECTION", maxResults: 5 }] }]
+                })
+              }).catch(() => {});
+            }
+            return b64;
+          }
+        }
       }
 
-      return b64;
+      // Fallback to Gemini image generation
+      const response = await ai.models.generateContent({
+        model: "gemini-2.0-flash-preview-image-generation",
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        config: { responseModalities: [Modality.TEXT, Modality.IMAGE] },
+      });
+      const candidates = response.candidates;
+      if (candidates?.length) {
+        const content = candidates[0].content;
+        for (const part of content.parts || []) {
+          if ((part as any).inlineData?.data) {
+            return (part as any).inlineData.data as string;
+          }
+        }
+      }
+      throw new Error("No image data from providers");
     } catch (error) {
       throw new Error(`Image generation failed: ${error}`);
     }

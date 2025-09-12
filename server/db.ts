@@ -124,6 +124,17 @@ export class DatabaseStorage implements IStorage {
     return file;
   }
 
+  async updateFile(id: string, updates: Partial<GeneratedFile>): Promise<GeneratedFile> {
+    const payload: any = { ...updates };
+    if ('size' in payload && typeof payload.size !== 'number') delete payload.size;
+    const [row] = await db
+      .update(generatedFiles)
+      .set(payload)
+      .where(eq(generatedFiles.id, id))
+      .returning();
+    return row;
+  }
+
   // Download history
   async createDownload(event: InsertDownload): Promise<Download> {
     const [row] = await db.insert(downloads).values(event).returning();

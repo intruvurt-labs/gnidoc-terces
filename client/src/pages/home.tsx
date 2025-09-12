@@ -100,7 +100,12 @@ export default function Home() {
           includeTests: false,
           bestOrchestration: bestMode,
           onlyCodeOutput: bestMode,
+          beastMode: bestMode,
         });
+        if (bestMode) {
+          generateImage(prompt);
+          generateVideo(prompt);
+        }
         break;
       case "image":
         generateImage(prompt);

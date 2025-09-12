@@ -5,6 +5,7 @@ import {
   projects,
   generatedFiles,
   securityScans,
+  downloads,
   type User,
   type InsertUser,
   type Project,
@@ -12,7 +13,9 @@ import {
   type GeneratedFile,
   type InsertFile,
   type SecurityScan,
-  type InsertSecurityScan
+  type InsertSecurityScan,
+  type Download,
+  type InsertDownload
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { IStorage } from "./storage";

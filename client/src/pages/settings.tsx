@@ -124,7 +124,7 @@ export default function SettingsPage() {
               </Select>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">Best Mode (strict)</span>
+              <span className="text-sm text-gray-300">Beast Mode (multi-model orchestration)</span>
               <Switch checked={preferences.ai.bestModeDefault} onCheckedChange={(v) => setPreferences(p => ({...p, ai: {...p.ai, bestModeDefault: v}}))} />
             </div>
             <div className="flex items-center justify-between">

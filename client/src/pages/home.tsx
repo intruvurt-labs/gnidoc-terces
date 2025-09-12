@@ -243,10 +243,10 @@ export default DemoComponent;`;
               {/* Generation Buttons */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
                 {[
-                  { type: "code", icon: "fas fa-code", label: "Generate Code", color: "text-cyber-green" },
-                  { type: "image", icon: "fas fa-image", label: "Create Image", color: "text-cyber-cyan" },
-                  { type: "video", icon: "fas fa-video", label: "Generate Video", color: "text-cyber-purple" },
-                  { type: "security", icon: "fas fa-shield-alt", label: "Security Scan", color: "text-cyber-red" },
+                  { type: "code", icon: "fas fa-code", label: "Code", color: "text-cyber-green" },
+                  { type: "image", icon: "fas fa-image", label: "Image", color: "text-cyber-cyan" },
+                  { type: "video", icon: "fas fa-video", label: "Video", color: "text-cyber-purple" },
+                  { type: "security", icon: "fas fa-shield-alt", label: "Security", color: "text-cyber-red" },
                   { type: "tri", icon: "fas fa-chart-line", label: "Tri-Analysis", color: "text-cyber-purple" },
                 ].map((btn, i) => (
                   <Button
@@ -276,6 +276,26 @@ export default DemoComponent;`;
 
           {/* File Manager + Results */}
           <FileManager onFilesChange={setUploadedFiles} />
+          {files && files.length > 0 && (
+            <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
+              <h3 className="text-lg font-orbitron font-bold text-cyber-cyan mb-3">
+                <i className="fas fa-files mr-2"></i>Generated Files
+              </h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {files.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between bg-dark-card rounded-lg p-3">
+                    <div className="min-w-0">
+                      <div className="text-sm text-white truncate">{file.fileName}</div>
+                      <div className="text-xs text-gray-400">{file.fileType}</div>
+                    </div>
+                    <Button size="sm" onClick={() => downloadFile(file)}>
+                      <i className="fas fa-download mr-2"></i>Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {analysisResult && <TriAnalysisResults result={analysisResult} onClear={clearResults} />}
         </div>
 

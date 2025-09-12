@@ -44,6 +44,16 @@ export const securityScans = pgTable("security_scans", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const downloads = pgTable("downloads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  fileId: varchar("file_id").notNull(),
+  projectId: varchar("project_id").notNull(),
+  fileName: text("file_name").notNull(),
+  size: integer("size").default(0),
+  downloadUrl: text("download_url"),
+  downloadedAt: timestamp("downloaded_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertProjectSchema = createInsertSchema(projects).omit({
   id: true,
@@ -61,6 +71,11 @@ export const insertSecurityScanSchema = createInsertSchema(securityScans).omit({
   createdAt: true,
 });
 
+export const insertDownloadSchema = createInsertSchema(downloads).omit({
+  id: true,
+  downloadedAt: true,
+});
+
 // Types
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
@@ -68,6 +83,8 @@ export type InsertFile = z.infer<typeof insertFileSchema>;
 export type GeneratedFile = typeof generatedFiles.$inferSelect;
 export type InsertSecurityScan = z.infer<typeof insertSecurityScanSchema>;
 export type SecurityScan = typeof securityScans.$inferSelect;
+export type InsertDownload = z.infer<typeof insertDownloadSchema>;
+export type Download = typeof downloads.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 

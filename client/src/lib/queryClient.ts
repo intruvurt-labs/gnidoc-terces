@@ -50,8 +50,30 @@ export const getQueryFn: <T>(options: {
       console.log(`Success: ${url}`, data); // Debug logging
       return data;
     } catch (error) {
-      console.error(`Fetch error for ${queryKey.join("/")}:`, error);
-      throw error;
+      const key = queryKey.join("/") as string;
+      console.error(`Fetch error for ${key}:`, error);
+      // Try cache first
+      const cached = queryClient.getQueryData<any>(queryKey as any);
+      if (cached !== undefined) return cached as T;
+      // Sensible fallbacks by endpoint to avoid UI crashes
+      if (key.startsWith("/api/projects")) return ([] as unknown) as T;
+      if (key.startsWith("/api/downloads")) return ([] as unknown) as T;
+      if (key.includes("/files")) return ([] as unknown) as T;
+      if (key === "/api/ai/status") {
+        const fallback = {
+          timestamp: new Date().toISOString(),
+          providers: {
+            gemini: { configured: false },
+            openai: { configured: false },
+            anthropic: { configured: false },
+            vision: { configured: false },
+            runway: { configured: false },
+          },
+        };
+        return (fallback as unknown) as T;
+      }
+      // Final fallback: null
+      return (null as unknown) as T;
     }
   };
 

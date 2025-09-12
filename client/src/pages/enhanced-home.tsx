@@ -30,10 +30,16 @@ import {
 } from 'lucide-react';
 
 import { useLocation } from 'wouter';
+import { useRefactor } from '@/hooks/use-refactor';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 export function EnhancedHome() {
   const [activeTab, setActiveTab] = useState('overview');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [refactorOpen, setRefactorOpen] = useState(false);
+  const [refactorPrompt, setRefactorPrompt] = useState('');
+  const { isRefactoring, runRefactor } = useRefactor();
   const [systemMetrics, setSystemMetrics] = useState({
     uptime: 99.9,
     activeScans: 12,
@@ -109,21 +115,26 @@ export function EnhancedHome() {
     }
   };
 
-  const handleSecurityScan = async () => {
-    const allCode = uploadedFiles
-      .filter(f => f.category === 'code' && f.content)
-      .map(f => f.content)
-      .join('\n\n');
-
-    if (!allCode) {
-      alert('Please upload some code files first');
-      return;
-    }
-
+  const handleRefactor = async () => {
     try {
-      await performEnhancedScan(allCode, '/tmp/scan', { scanMode: 'MILITARY_GRADE' });
+      const projects = await fetch('/api/projects', { credentials: 'include' }).then(r => r.json());
+      const latest = projects?.[0];
+      if (!latest) {
+        alert('No project found. Generate code first.');
+        return;
+      }
+      const prompt = refactorPrompt.trim();
+      if (!prompt) {
+        alert('Enter a refactor prompt');
+        return;
+      }
+      await runRefactor(latest.id, prompt);
+      setRefactorOpen(false);
+      // Refresh files list
+      // @ts-ignore
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", latest.id, "files"] });
     } catch (error) {
-      console.error('Security scan failed:', error);
+      console.error('Refactor failed:', error);
     }
   };
 
@@ -227,12 +238,12 @@ export function EnhancedHome() {
                 <Target className="w-4 h-4 mr-2" />
                 Analysis
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="security"
                 className="data-[state=active]:bg-cyber-red/20 data-[state=active]:text-cyber-red"
               >
                 <Shield className="w-4 h-4 mr-2" />
-                Security
+                Refactor
               </TabsTrigger>
               <TabsTrigger 
                 value="monitoring"
@@ -292,14 +303,28 @@ export function EnhancedHome() {
                       <Target className="w-4 h-4 mr-2" />
                       {isAnalyzing ? 'Analyzing...' : 'Run Tri-Analysis'}
                     </Button>
-                    <Button
-                      onClick={handleSecurityScan}
-                      disabled={uploadedFiles.filter(f => f.category === 'code').length === 0 || isEnhancedScanning}
-                      className="w-full glass-button"
-                    >
-                      <Shield className="w-4 h-4 mr-2" />
-                      {isEnhancedScanning ? 'Scanning...' : 'Security Scan'}
-                    </Button>
+                    <Dialog open={refactorOpen} onOpenChange={setRefactorOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full glass-button">
+                          <Shield className="w-4 h-4 mr-2" />
+                          Refactor
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-dark-panel border-cyber-red/30">
+                        <DialogHeader>
+                          <DialogTitle className="text-cyber-red">Refactor with Gemini (plan only)</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          <p className="text-sm text-gray-400">Describe the refactor (e.g., "Move components to src/components and convert JS to TS"). No code is sent to external services.</p>
+                          <Textarea value={refactorPrompt} onChange={(e) => setRefactorPrompt(e.target.value)} placeholder="Your refactor prompt" />
+                        </div>
+                        <DialogFooter>
+                          <Button onClick={handleRefactor} disabled={isRefactoring}>
+                            {isRefactoring ? 'Refactoring…' : 'Apply'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                     <Button
                       onClick={() => setActiveTab('files')}
                       className="w-full glass-button"

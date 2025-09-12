@@ -18,6 +18,10 @@ export interface IStorage {
   getFilesByProject(projectId: string): Promise<GeneratedFile[]>;
   getFile(id: string): Promise<GeneratedFile | undefined>;
 
+  // Download history
+  createDownload(event: InsertDownload): Promise<Download>;
+  getDownloads(limit?: number): Promise<Download[]>;
+
   // Security scan methods
   createSecurityScan(scan: InsertSecurityScan): Promise<SecurityScan>;
   getSecurityScanByProject(projectId: string): Promise<SecurityScan | undefined>;

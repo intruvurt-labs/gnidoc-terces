@@ -273,6 +273,40 @@ export default DemoComponent;`;
             </div>
           </div>
 
+          {/* Output Panel */}
+          {latestProject && (
+            <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-orbitron font-bold text-cyber-green">Output</h3>
+                <span className="text-xs text-gray-400 capitalize">{latestProject.type}</span>
+              </div>
+              {latestProject.type === 'code' && latestProject.result && typeof latestProject.result === 'object' && 'code' in latestProject.result && (
+                <div className="space-y-3">
+                  <CodeEditor
+                    value={String((latestProject.result as any).code)}
+                    language="typescript"
+                    readOnly
+                    height={400}
+                  />
+                </div>
+              )}
+              {latestProject.type === 'image' && latestProject.result && typeof latestProject.result === 'object' && 'imageData' in latestProject.result && (
+                <div className="flex items-center justify-center">
+                  <img
+                    src={`data:image/png;base64,${String((latestProject.result as any).imageData)}`}
+                    alt="Generated"
+                    className="max-h-96 rounded border border-cyber-cyan/30"
+                  />
+                </div>
+              )}
+              {latestProject.type === 'video' && latestProject.result && typeof latestProject.result === 'object' && 'videoData' in latestProject.result && (
+                <div className="bg-dark-card rounded p-3 text-sm text-gray-300 border border-gray-600">
+                  {(latestProject.result as any).videoData}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* File Manager + Results */}
           <FileManager onFilesChange={setUploadedFiles} />
           {files && files.length > 0 && (

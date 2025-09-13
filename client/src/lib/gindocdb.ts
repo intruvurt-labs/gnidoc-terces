@@ -102,7 +102,7 @@ export class GindocDB implements GindocDBClient {
         return;
       }
 
-      const requestId = Date.now().toString() + Math.random().toString(36);
+      const requestId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto) ? crypto.randomUUID() : (Date.now().toString() + '-' + (performance.now()|0).toString(36));
       this.pendingRequests.set(requestId, { resolve, reject });
 
       this.ws.send(JSON.stringify({
@@ -145,7 +145,7 @@ export class GindocDB implements GindocDBClient {
   }
 
   subscribe(collection: string, callback: (data: any) => void, query?: Record<string, any>): string {
-    const subscriptionId = Date.now().toString() + Math.random().toString(36);
+    const subscriptionId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto) ? crypto.randomUUID() : (Date.now().toString() + '-' + (performance.now()|0).toString(36));
     this.subscriptions.set(subscriptionId, callback);
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {

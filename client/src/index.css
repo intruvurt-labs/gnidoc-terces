@@ -52,12 +52,12 @@ html {
   --font-mono: 'Fira Code', monospace;
   --font-orbitron: 'Orbitron', monospace;
   --radius: 0.5rem;
-  --cyber-green: hsl(120 100% 50%);
+  --cyber-green: hsl(48 100% 50%);
   --cyber-red: hsl(348 100% 63%);
-  --cyber-cyan: hsl(180 100% 50%);
-  --cyber-purple: hsl(280 100% 50%);
-  --light-blue: hsl(210 80% 65%);
-  --dark-blue: hsl(220 90% 45%);
+  --cyber-cyan: hsl(25 100% 55%);
+  --cyber-purple: hsl(320 85% 55%);
+  --light-blue: hsl(35 95% 60%);
+  --dark-blue: hsl(15 90% 50%);
   --dark-bg: hsl(0 0% 4%);
   --dark-panel: hsl(0 0% 10%);
   --dark-card: hsl(0 0% 16%);
@@ -106,15 +106,46 @@ html {
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    background-image:
-      linear-gradient(90deg, rgba(0,255,65,0.1) 1px, transparent 1px),
-      linear-gradient(rgba(0,255,65,0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: none;
     cursor: url('/cheese-cursor.svg') 16 16, auto;
     /* Performance optimizations */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+
+  .logo-wordmark {
+    display: none;
+  }
+
+  .brand-bevel {
+    font-family: var(--font-orbitron);
+    font-weight: 900;
+    color: #f3f3f3;
+    letter-spacing: 1px;
+    text-shadow:
+      0 1px 0 #0a0a0a,
+      0 2px 0 #0a0a0a,
+      0 3px 0 #0a0a0a,
+      0 4px 0 #0a0a0a,
+      0 5px 10px rgba(0,0,0,0.6),
+      0 0 10px rgba(255,255,255,0.15);
+    -webkit-text-stroke: 1px rgba(0,0,0,0.6);
+    background: linear-gradient(180deg, #ffffff, #d9d9d9 40%, #bfbfbf 60%, #a6a6a6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .logo-face {
+    width: 56px;
+    height: 56px;
+    background-image: url('https://cdn.builder.io/api/v1/image/assets%2F29ccaf1d7d264cd2bd339333fe296f0c%2Fd05a8822b9d0435bb27e389c3fe04d2a?format=webp&width=400');
+    background-repeat: no-repeat;
+    background-size: 140% auto;
+    background-position: center 35%;
+    border-radius: 12px;
+    display: block;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
   }
 
   .font-orbitron {

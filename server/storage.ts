@@ -1,5 +1,6 @@
 import { type User, type InsertUser, type Project, type InsertProject, type GeneratedFile, type InsertFile, type SecurityScan, type InsertSecurityScan } from "@shared/schema";
 import { DatabaseStorage } from "./db";
+import { type InsertDownload, type Download, type InsertUser, type User, type InsertProject, type Project, type InsertFile, type GeneratedFile, type InsertSecurityScan, type SecurityScan } from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -17,6 +18,11 @@ export interface IStorage {
   createFile(file: InsertFile): Promise<GeneratedFile>;
   getFilesByProject(projectId: string): Promise<GeneratedFile[]>;
   getFile(id: string): Promise<GeneratedFile | undefined>;
+  updateFile(id: string, updates: Partial<GeneratedFile>): Promise<GeneratedFile>;
+
+  // Download history
+  createDownload(event: InsertDownload): Promise<Download>;
+  getDownloads(limit?: number): Promise<Download[]>;
 
   // Security scan methods
   createSecurityScan(scan: InsertSecurityScan): Promise<SecurityScan>;

@@ -30,6 +30,8 @@ const securityRateLimit = createDynamicRateLimit({
 const scanRateLimit = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 3, // Very limited for expensive operations
+  standardHeaders: true,
+  legacyHeaders: false,
   message: {
     error: 'Scan rate limit exceeded',
     hint: 'Security scans are resource-intensive. Please wait before scanning again.'
@@ -478,7 +480,7 @@ router.get('/dashboard/metrics',
         quarantinedIPs: quarantinedIPs.length,
         uptime: 99.8,
         realTimeStats: {
-          requestsPerSecond: 8 + Math.random() * 10,
+          requestsPerSecond: 8 + ((now / 1000) % 10),
           blockedRequests: recentEvents.filter(e => e.type === 'ACCESS_DENIED').length,
           suspiciousActivity: recentEvents.filter(e => e.severity === 'WARNING').length,
           geoDistribution: {

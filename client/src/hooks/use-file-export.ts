@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useToast } from './use-toast';
 
 export interface ExportOptions {
-  format: 'pdf' | 'docx' | 'html' | 'md' | 'txt' | 'json' | 'csv' | 'zip';
+  format: 'pdf' | 'docx' | 'html' | 'md' | 'txt' | 'json' | 'csv';
   includeMetadata?: boolean;
   includeAnalysis?: boolean;
   includeImages?: boolean;
@@ -98,9 +98,6 @@ export function useFileExport() {
         case 'csv':
           ({ blob, filename } = await generateCSV(exportData, options));
           break;
-        case 'zip':
-          ({ blob, filename } = await generateZip(exportData, options));
-          break;
         default:
           throw new Error(`Unsupported export format: ${options.format}`);
       }
@@ -177,6 +174,60 @@ export function useFileExport() {
         filename: '',
         error: errorMessage
       };
+    }
+  }, [toast]);
+
+  const exportMultiple = useCallback(async (
+    data: any,
+    formats: ExportOptions['format'][],
+    baseOptions?: Omit<ExportOptions, 'format'>
+  ): Promise<ExportResult[]> => {
+    if (!formats.length) return [];
+    setDownloadProgress({ isExporting: true, currentStep: 'Preparing multi-export...', progress: 0 });
+    try {
+      const exportData = await prepareExportData(data, {
+        format: formats[0],
+        ...(baseOptions || {}),
+      } as ExportOptions);
+      const total = formats.length;
+      const results: ExportResult[] = [];
+      for (let i = 0; i < total; i++) {
+        const fmt = formats[i];
+        setDownloadProgress({
+          isExporting: true,
+          currentStep: `Generating ${fmt.toUpperCase()} (${i + 1}/${total})...`,
+          progress: Math.round((i / total) * 100),
+        });
+        const opts: ExportOptions = { format: fmt, ...(baseOptions || {}) } as ExportOptions;
+        let gen: { blob: Blob; filename: string };
+        switch (fmt) {
+          case 'pdf': gen = await generatePDF(exportData, opts); break;
+          case 'docx': gen = await generateDocx(exportData, opts); break;
+          case 'html': gen = await generateHTML(exportData, opts); break;
+          case 'md': gen = await generateMarkdown(exportData, opts); break;
+          case 'txt': gen = await generateText(exportData, opts); break;
+          case 'json': gen = await generateJSON(exportData, opts); break;
+          case 'csv': gen = await generateCSV(exportData, opts); break;
+          default: throw new Error(`Unsupported export format: ${fmt}`);
+        }
+        const url = URL.createObjectURL(gen.blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = gen.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        results.push({ success: true, downloadUrl: url, filename: gen.filename, size: gen.blob.size, metadata: { createdAt: new Date().toISOString(), format: fmt, wordCount: calculateWordCount(exportData), ...(fmt === 'pdf' ? { pageCount: calculatePageCount(exportData) } : {}) } });
+      }
+      setDownloadProgress({ isExporting: true, currentStep: 'Finalizing...', progress: 95 });
+      setTimeout(() => setDownloadProgress({ isExporting: false, currentStep: '', progress: 0 }), 400);
+      toast({ title: 'Multi-export complete', description: `Exported ${formats.length} files: ${formats.join(', ')}` });
+      return results;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Multi-export failed';
+      setDownloadProgress({ isExporting: false, currentStep: 'Export failed', progress: 0 });
+      toast({ title: 'Multi-export failed', description: msg, variant: 'destructive' });
+      return formats.map(() => ({ success: false, filename: '', error: msg }));
     }
   }, [toast]);
 
@@ -508,18 +559,6 @@ ${data.copyright}
     return { blob, filename };
   };
 
-  /**
-   * Generate ZIP export with multiple files
-   */
-  const generateZip = async (data: any, options: ExportOptions): Promise<{ blob: Blob; filename: string }> => {
-    // For ZIP generation, we'd use a library like JSZip
-    // This is a simplified placeholder
-    const zipContent = JSON.stringify(data, null, 2);
-    const blob = new Blob([zipContent], { type: 'application/zip' });
-    const filename = `gindoc-complete-${Date.now()}.zip`;
-
-    return { blob, filename };
-  };
 
   /**
    * Generate HTML report content
@@ -669,6 +708,7 @@ ${data.copyright}
 
   return {
     exportFiles,
+    exportMultiple,
     downloadProgress,
     isExporting: downloadProgress.isExporting
   };

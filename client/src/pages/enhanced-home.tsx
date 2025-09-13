@@ -29,9 +29,18 @@ import {
   Rocket
 } from 'lucide-react';
 
+import { useLocation } from 'wouter';
+import { useRefactor } from '@/hooks/use-refactor';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { queryClient } from '@/lib/queryClient';
+
 export function EnhancedHome() {
   const [activeTab, setActiveTab] = useState('overview');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [refactorOpen, setRefactorOpen] = useState(false);
+  const [refactorPrompt, setRefactorPrompt] = useState('');
+  const { isRefactoring, runRefactor } = useRefactor();
   const [systemMetrics, setSystemMetrics] = useState({
     uptime: 99.9,
     activeScans: 12,
@@ -64,9 +73,9 @@ export function EnhancedHome() {
     const interval = setInterval(() => {
       setSystemMetrics(prev => ({
         ...prev,
-        activeScans: Math.max(5, prev.activeScans + Math.floor(Math.random() * 3) - 1),
-        threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 2),
-        apiCalls: prev.apiCalls + Math.floor(Math.random() * 50),
+        activeScans: Math.max(5, prev.activeScans + (((Date.now()/5000)|0) % 3) - 1),
+        threatsBlocked: prev.threatsBlocked + (((Date.now()/5000)|0) % 2),
+        apiCalls: prev.apiCalls + (((Date.now()/1000)|0) % 50),
       }));
     }, 5000);
 
@@ -74,8 +83,44 @@ export function EnhancedHome() {
   }, []);
 
   const handleFilesChange = (files: any[]) => {
-    setUploadedFiles(files);
+    const names = new Set((files || []).map((f: any) => f.name));
+    const extra: any[] = [];
+
+    const ensure = (name: string, content: string) => {
+      if (!names.has(name)) {
+        extra.push({
+          id: `gen_${Date.now()}_${name}`,
+          file: new File([content], name, { type: 'text/plain' }),
+          name,
+          size: content.length,
+          type: 'text/plain',
+          category: 'code',
+          content,
+          uploadProgress: 100,
+          status: 'completed',
+        });
+      }
+    };
+
+    const hasCode = (files || []).some((f: any) => f.category === 'code');
+    if (hasCode) {
+      ensure('package.json', JSON.stringify({
+        name: 'app', version: '1.0.0', private: true,
+        scripts: { dev: 'vite', build: 'vite build', preview: 'vite preview' },
+        dependencies: { react: '^18.3.1', 'react-dom': '^18.3.1' },
+        devDependencies: { vite: '^5.4.0', typescript: '^5.6.3', '@types/react': '^18.3.11', '@types/react-dom': '^18.3.1' }
+      }, null, 2));
+      ensure('tsconfig.json', JSON.stringify({ compilerOptions: { jsx: 'react-jsx', target: 'ES2020', module: 'ESNext', moduleResolution: 'Bundler', strict: true } }, null, 2));
+      ensure('index.html', '<!doctype html>\n<html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>App</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>');
+      ensure('src/main.tsx', "import React from 'react';\nimport { createRoot } from 'react-dom/client';\nimport App from './App';\ncreateRoot(document.getElementById('root')!).render(<App />);\n");
+      ensure('src/App.tsx', "import React from 'react';\nexport default function App(){return <div style={{padding:20}}>App Ready</div>}");
+    }
+
+    const all = [...files, ...extra];
+    setUploadedFiles(all);
   };
+
+  const [, navigate] = useLocation();
 
   const handleRunAnalysis = async () => {
     if (uploadedFiles.length === 0) {
@@ -84,27 +129,46 @@ export function EnhancedHome() {
     }
 
     try {
-      await performTriAnalysis(uploadedFiles);
+      const result = await performTriAnalysis(uploadedFiles);
+
+      // Aggregate code from uploaded files for probable scan
+      const allCode = uploadedFiles
+        .filter(f => f.category === 'code' && (f.content || '').length > 0)
+        .map(f => String(f.content))
+        .join('\n\n');
+
+      if (allCode.length > 0) {
+        // Run enhanced security scan using best (military-grade) options
+        await performEnhancedScan(allCode, '/tmp/scan', { scanMode: 'MILITARY_GRADE' });
+        // Navigate to Security page with scans tab open
+        navigate('/security?tab=scans');
+      }
+
+      return result;
     } catch (error) {
       console.error('Analysis failed:', error);
     }
   };
 
-  const handleSecurityScan = async () => {
-    const allCode = uploadedFiles
-      .filter(f => f.category === 'code' && f.content)
-      .map(f => f.content)
-      .join('\n\n');
-
-    if (!allCode) {
-      alert('Please upload some code files first');
-      return;
-    }
-
+  const handleRefactor = async () => {
     try {
-      await performEnhancedScan(allCode, '/tmp/scan', { scanMode: 'MILITARY_GRADE' });
+      const projects = await fetch('/api/projects', { credentials: 'include' }).then(r => r.json());
+      const latest = projects?.[0];
+      if (!latest) {
+        alert('No project found. Generate code first.');
+        return;
+      }
+      const prompt = refactorPrompt.trim();
+      if (!prompt) {
+        alert('Enter a refactor prompt');
+        return;
+      }
+      await runRefactor(latest.id, prompt);
+      setRefactorOpen(false);
+      // Refresh files list
+      queryClient.invalidateQueries({ queryKey: ["/api/projects", latest.id, "files"] });
     } catch (error) {
-      console.error('Security scan failed:', error);
+      console.error('Refactor failed:', error);
     }
   };
 
@@ -149,7 +213,7 @@ export function EnhancedHome() {
                 </Badge>
               </div>
               
-              <h1 className="text-4xl md:text-6xl font-orbitron font-bold animated-rainbow-text">
+              <h1 className="text-4xl md:text-6xl font-orbitron font-bold">
                 GINDOC PLATFORM
               </h1>
               
@@ -208,12 +272,12 @@ export function EnhancedHome() {
                 <Target className="w-4 h-4 mr-2" />
                 Analysis
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="security"
                 className="data-[state=active]:bg-cyber-red/20 data-[state=active]:text-cyber-red"
               >
                 <Shield className="w-4 h-4 mr-2" />
-                Security
+                Refactor
               </TabsTrigger>
               <TabsTrigger 
                 value="monitoring"
@@ -273,14 +337,28 @@ export function EnhancedHome() {
                       <Target className="w-4 h-4 mr-2" />
                       {isAnalyzing ? 'Analyzing...' : 'Run Tri-Analysis'}
                     </Button>
-                    <Button
-                      onClick={handleSecurityScan}
-                      disabled={uploadedFiles.filter(f => f.category === 'code').length === 0 || isEnhancedScanning}
-                      className="w-full glass-button"
-                    >
-                      <Shield className="w-4 h-4 mr-2" />
-                      {isEnhancedScanning ? 'Scanning...' : 'Security Scan'}
-                    </Button>
+                    <Dialog open={refactorOpen} onOpenChange={setRefactorOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="w-full glass-button">
+                          <Shield className="w-4 h-4 mr-2" />
+                          Refactor
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-dark-panel border-cyber-red/30">
+                        <DialogHeader>
+                          <DialogTitle className="text-cyber-red">Refactor with Gemini (plan only)</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          <p className="text-sm text-gray-400">Describe the refactor (e.g., "Move components to src/components and convert JS to TS"). No code is sent to external services.</p>
+                          <Textarea value={refactorPrompt} onChange={(e) => setRefactorPrompt(e.target.value)} placeholder="Your refactor prompt" />
+                        </div>
+                        <DialogFooter>
+                          <Button onClick={handleRefactor} disabled={isRefactoring}>
+                            {isRefactoring ? 'Refactoring…' : 'Apply'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                     <Button
                       onClick={() => setActiveTab('files')}
                       className="w-full glass-button"
@@ -444,114 +522,44 @@ export function EnhancedHome() {
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-orbitron font-bold text-cyber-red">
-                    Fortress Elite Security
+                    Refactor Workspace
                   </h2>
-                  <Button
-                    onClick={handleSecurityScan}
-                    disabled={uploadedFiles.filter(f => f.category === 'code').length === 0 || isEnhancedScanning}
-                    className="glass-button"
-                  >
-                    <Shield className="w-4 h-4 mr-2" />
-                    {isEnhancedScanning ? 'Scanning...' : 'Military Scan'}
-                  </Button>
+                  <Dialog open={refactorOpen} onOpenChange={setRefactorOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="glass-button">
+                        <Shield className="w-4 h-4 mr-2" />
+                        Refactor
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-dark-panel border-cyber-red/30">
+                      <DialogHeader>
+                        <DialogTitle className="text-cyber-red">Refactor with Gemini (plan only)</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-400">Describe the refactor (e.g., "Move components to src/components and convert JS to TS"). No code is sent to external services.</p>
+                        <Textarea value={refactorPrompt} onChange={(e) => setRefactorPrompt(e.target.value)} placeholder="Your refactor prompt" />
+                      </div>
+                      <DialogFooter>
+                        <Button onClick={handleRefactor} disabled={isRefactoring}>
+                          {isRefactoring ? 'Refactoring…' : 'Apply'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
-                {enhancedScanResult ? (
-                  <div className="space-y-6">
-                    <Alert className="bg-cyber-green/10 border-cyber-green/30">
-                      <Shield className="h-4 w-4 text-cyber-green" />
-                      <AlertDescription className="text-cyber-green">
-                        Enhanced security scan completed with {enhancedScanResult.finalStatus} status.
-                        Overall security score: {enhancedScanResult.finalScore}%
-                      </AlertDescription>
-                    </Alert>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <Card className="bg-dark-panel border-cyber-green/30">
-                        <CardHeader>
-                          <CardTitle className="text-cyber-green">Fortress Scanner</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Status</span>
-                              <Badge className={getStatusColor(enhancedScanResult.fortressResults.status)}>
-                                {enhancedScanResult.fortressResults.status}
-                              </Badge>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Score</span>
-                              <span className="font-bold">{enhancedScanResult.fortressResults.overallScore}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Threats</span>
-                              <span className="text-cyber-red">{enhancedScanResult.fortressResults.threatsFound.length}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-dark-panel border-cyber-cyan/30">
-                        <CardHeader>
-                          <CardTitle className="text-cyber-cyan">Threat Intelligence</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Risk Score</span>
-                              <span className="font-bold">{enhancedScanResult.threatIntelResults.riskScore}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Intel Threats</span>
-                              <span className="text-cyber-red">{enhancedScanResult.threatIntelResults.threats.length}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Recommendations</span>
-                              <span>{enhancedScanResult.threatIntelResults.recommendations.length}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-dark-panel border-cyber-purple/30">
-                        <CardHeader>
-                          <CardTitle className="text-cyber-purple">Business Impact</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span>Financial Risk</span>
-                              <span className="text-cyber-red">{enhancedScanResult.businessImpact.financialRisk}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Operational Risk</span>
-                              <span className="text-cyber-yellow">{enhancedScanResult.businessImpact.operationalRisk}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Compliance Risk</span>
-                              <span className="text-cyber-purple">{enhancedScanResult.businessImpact.complianceRisk}%</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                {isRefactoring ? (
+                  <Alert className="bg-cyber-yellow/10 border-cyber-yellow/30">
+                    <Shield className="h-4 w-4 text-cyber-yellow" />
+                    <AlertDescription className="text-cyber-yellow">
+                      Applying refactor plan…
+                    </AlertDescription>
+                  </Alert>
                 ) : (
                   <Card className="bg-dark-panel border-cyber-red/30">
-                    <CardContent className="text-center py-12">
-                      <Shield className="w-16 h-16 text-cyber-red mx-auto mb-4 opacity-50" />
-                      <h3 className="text-lg font-orbitron text-cyber-red mb-2">
-                        No Security Scan Results
-                      </h3>
-                      <p className="text-gray-400 mb-4">
-                        Upload code files and run a security scan to see detailed threat analysis.
-                      </p>
-                      <Button
-                        onClick={() => setActiveTab('files')}
-                        className="glass-button"
-                      >
-                        Upload Code Files
-                      </Button>
+                    <CardContent className="py-6">
+                      <h3 className="text-lg font-orbitron text-cyber-red mb-2">Refactor</h3>
+                      <p className="text-gray-400 text-sm">Use the Refactor button to plan changes privately and apply them locally.</p>
                     </CardContent>
                   </Card>
                 )}

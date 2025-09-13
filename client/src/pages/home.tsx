@@ -1,22 +1,55 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import CyberpunkLayout from "@/components/cyberpunk-layout";
+import React, { useState, useEffect } from 'react';
 import LoadingModal from "@/components/ui/loading-modal";
 import CodeEditor from "@/components/ui/code-editor";
 import FileCard from "@/components/ui/file-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAIGeneration } from "@/hooks/use-ai-generation";
+import { VoiceButton } from "@/components/ui/voice-button";
 import { useConnectionHealth } from "@/hooks/use-connection-health";
 import { useSecurityScan } from "@/hooks/use-security-scan";
 import { useTriAnalysis } from "@/hooks/use-tri-analysis";
+import { useAIStatus } from "@/hooks/use-ai-status";
+import { useDownloadHistory } from "@/hooks/use-download-history";
 import { type UploadedFile } from "@/hooks/use-file-upload";
 import FileManager from "@/components/file-manager";
 import TriAnalysisResults from "@/components/tri-analysis-results";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 
 import { type Project, type GeneratedFile } from "@shared/schema";
-import gindocLogo from "@assets/gindoc_1755279048391.png";
+
+function CreateProjectForm() {
+  const [name, setName] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const canSubmit = name.trim().length > 0;
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setSubmitting(true);
+    try {
+      await apiRequest('POST', '/api/projects', { name: name.trim(), description: description.trim(), type: 'code' });
+      setName(""); setDescription("");
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+    } catch (err) {
+      console.warn('Create project failed', err);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  return (
+    <form onSubmit={onSubmit} className="space-y-2">
+      <Input placeholder="Project name" value={name} onChange={(e) => setName(e.target.value)} />
+      <Textarea placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} className="h-20" />
+      <Button type="submit" disabled={!canSubmit || submitting} className="w-full">
+        <i className="fas fa-plus mr-2"></i>{submitting ? 'Creating…' : 'Create'}
+      </Button>
+    </form>
+  );
+}
 
 export default function Home() {
   const [prompt, setPrompt] = useState(
@@ -25,6 +58,7 @@ export default function Home() {
   const [activeAI, setActiveAI] = useState<"gemini" | "runway" | "imagen">("gemini");
   const [outputMode, setOutputMode] = useState<"code" | "preview" | "files">("code");
   const [showAbout, setShowAbout] = useState(false);
+  const [bestMode, setBestMode] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -37,6 +71,9 @@ export default function Home() {
     performSecurityScan,
     result,
   } = useAIGeneration();
+
+  const { data: aiStatus } = useAIStatus();
+  const { data: downloads = [] } = useDownloadHistory(20);
 
   const { isHealthy, isOnline, healthError } = useConnectionHealth();
   const {
@@ -94,7 +131,14 @@ export default function Home() {
           language: "typescript",
           framework: "react",
           includeTests: false,
+          bestOrchestration: bestMode,
+          onlyCodeOutput: bestMode,
+          beastMode: bestMode,
         });
+        if (bestMode) {
+          generateImage(prompt);
+          generateVideo(prompt);
+        }
         break;
       case "image":
         generateImage(prompt);
@@ -158,22 +202,30 @@ export default DemoComponent;`;
 
   const getAIStatus = (ai: string) => {
     if (ai === activeAI && isGenerating)
-      return { status: "PROCESSING", color: "text-cyber-green animate-pulse" };
-    if (ai === "gemini") return { status: "ACTIVE", color: "text-cyber-green animate-pulse" };
-    if (ai === "imagen") return { status: "READY", color: "text-cyber-purple animate-pulse" };
+      return { status: "PROCESSING", color: "text-cyber-green" };
+    if (ai === "gemini") return { status: "ACTIVE", color: "text-cyber-green" };
+    if (ai === "imagen") return { status: "READY", color: "text-cyber-purple" };
     return { status: "STANDBY", color: "text-gray-500" };
   };
 
+  // Initialize Beast Mode from cookie
+  useEffect(() => {
+    try {
+      const v = document.cookie.split('; ').find(r => r.startsWith('beastMode='))?.split('=')[1];
+      if (v === 'true' || v === 'false') setBestMode(v === 'true');
+    } catch {}
+  }, []);
+
   return (
-    <CyberpunkLayout>
+    <>
       <LoadingModal isOpen={isGenerating} progress={progress} status={status} />
 
       {/* Tri-Analysis Loading Modal */}
       {isAnalyzing && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="glass-morph rounded-xl p-8 max-w-md w-full mx-4">
             <div className="text-center">
-              <i className="fas fa-chart-line text-cyber-purple text-4xl mb-4 animate-pulse"></i>
+              <i className="fas fa-chart-line text-cyber-purple text-4xl mb-4"></i>
               <h3 className="text-xl font-orbitron font-bold text-cyber-purple mb-2">
                 Tri-Analysis Processing
               </h3>
@@ -221,20 +273,41 @@ export default DemoComponent;`;
       )}
 
       {/* Main Grid */}
-      <div className="responsive-grid lg:grid-cols-3 animate-fade-in">
+      <div className="responsive-grid lg:grid-cols-3">
         {/* Main Control Panel */}
-        <div className="lg:col-span-2 space-y-6 animate-slide-up">
+        <div className="lg:col-span-2 space-y-6">
           {/* AI Orchestration Hub */}
           <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-orbitron font-bold text-cyber-green flex items-center">
-                <i className="fas fa-brain mr-3 text-cyber-cyan"></i>
-                AI Orchestration Hub
+              <h2 className="text-3xl font-orbitron font-bold text-black">
+                gnidoC Terces
               </h2>
             </div>
 
             {/* Prompt */}
             <div className="space-y-4">
+              {/* Tagline above small controls */}
+              <div className="my-2">
+                <h3 className="text-xl sm:text-2xl font-orbitron font-bold text-cyber-green text-center">real ai devs build here</h3>
+              </div>
+              {/* Tiny option buttons */}
+              <div className="flex items-center gap-2 mb-1">
+                <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setPrompt("")}>Clear</Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 px-2 text-xs"
+                  onClick={() => setPrompt(`Build a complete, production-ready React + TypeScript application.\n\nRequirements:\n- Implement full CRUD with form validation and routing\n- Use TailwindCSS for styling\n- Include a responsive layout and accessibility best practices\n- Provide unit tests when asked\n\nOutput rules:\n- Return ONLY fenced code blocks (no prose)\n- Include all required files (e.g., package.json, tsconfig, vite config)\n- No placeholders or TODOs; fully working code`)}
+                >Template</Button>
+                <Button
+                  size="sm"
+                  variant={bestMode ? "default" : "outline"}
+                  className={`h-7 px-2 text-xs ${bestMode ? 'bg-cyber-green text-black' : ''}`}
+                  onClick={() => setBestMode(v => { const next = !v; document.cookie = `beastMode=${next}; path=/; max-age=${60*60*24*365}`; return next; })}
+                >Beast Mode {bestMode ? 'On' : 'Off'}</Button>
+                <VoiceButton onAppend={(t) => setPrompt(p => (p ? p + "\n" : "") + t)} />
+              </div>
+
               <Textarea
                 placeholder="Describe your app or upload files..."
                 value={prompt}
@@ -245,25 +318,40 @@ export default DemoComponent;`;
               {/* Generation Buttons */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
                 {[
-                  { type: "code", icon: "fas fa-code", label: "Generate Code", color: "text-cyber-green" },
-                  { type: "image", icon: "fas fa-image", label: "Create Image", color: "text-cyber-cyan" },
-                  { type: "video", icon: "fas fa-video", label: "Generate Video", color: "text-cyber-purple" },
-                  { type: "security", icon: "fas fa-shield-alt", label: "Security Scan", color: "text-cyber-red" },
-                  { type: "tri", icon: "fas fa-chart-line", label: "Tri-Analysis", color: "text-cyber-purple" },
+                  { type: "build", icon: "fas fa-rocket", label: "Build", color: "text-cyber-yellow" },
+                  { type: "code", icon: "fas fa-code", label: "Code", color: "text-cyber-green" },
+                  { type: "image", icon: "fas fa-image", label: "Image", color: "text-cyber-cyan" },
+                  { type: "video", icon: "fas fa-video", label: "Video", color: "text-cyber-purple" },
+                  { type: "search", icon: "fas fa-search", label: "Search", color: "text-cyber-green" },
                 ].map((btn, i) => (
                   <Button
                     key={btn.type}
-                    onClick={() =>
-                      btn.type === "tri"
-                        ? uploadedFiles.length > 0 && performTriAnalysis(uploadedFiles)
-                        : handleGenerate(btn.type as any)
-                    }
+                    onClick={() => {
+                      if (btn.type === 'build') {
+                        handleGenerate('code');
+                        if (bestMode) { generateImage(prompt); generateVideo(prompt); }
+                        return;
+                      }
+                      if (btn.type === 'search') {
+                        // Force best orchestration for search
+                        // Call code generation with enhanced options
+                        generateCode(prompt, {
+                          language: 'typescript',
+                          framework: 'react',
+                          includeTests: false,
+                          bestOrchestration: true,
+                          onlyCodeOutput: bestMode,
+                          beastMode: bestMode,
+                        });
+                        return;
+                      }
+                      handleGenerate(btn.type as any);
+                    }}
                     disabled={
                       isGenerating ||
-                      (btn.type !== "security" && !prompt.trim()) ||
-                      (btn.type === "tri" && uploadedFiles.length === 0)
+                      (btn.type !== 'build' && !prompt.trim())
                     }
-                    className="cyber-border rounded-lg hover:animate-glow-pulse h-auto p-0 animate-float"
+                    className="cyber-border rounded-lg h-auto p-0"
                     style={{ animationDelay: `${0.1 * (i + 1)}s` }}
                   >
                     <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
@@ -276,30 +364,189 @@ export default DemoComponent;`;
             </div>
           </div>
 
+          {/* Output Panel */}
+          {latestProject && (
+            <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-orbitron font-bold text-cyber-green">Output</h3>
+                <span className="text-xs text-gray-400 capitalize">{latestProject.type}</span>
+              </div>
+              {latestProject.type === 'code' && latestProject.result && typeof latestProject.result === 'object' && 'code' in latestProject.result && (
+                <div className="space-y-3">
+                  <CodeEditor
+                    code={String((latestProject.result as any).code)}
+                    language="typescript"
+                  />
+                </div>
+              )}
+              {latestProject.type === 'image' && latestProject.result && typeof latestProject.result === 'object' && 'imageData' in latestProject.result && (
+                <div className="relative flex items-center justify-center">
+                  <img
+                    src={`data:image/png;base64,${String((latestProject.result as any).imageData)}`}
+                    alt="Generated"
+                    className="max-h-96 rounded border border-cyber-cyan/30"
+                  />
+                  <a
+                    href={`data:image/png;base64,${String((latestProject.result as any).imageData)}`}
+                    download="generated-image.png"
+                    className="absolute top-2 right-2 glass-button px-3 py-1 rounded"
+                  >
+                    <i className="fas fa-download mr-2"></i>Download PNG
+                  </a>
+                </div>
+              )}
+              {latestProject.type === 'video' && latestProject.result && typeof latestProject.result === 'object' && (
+                <div className="bg-dark-card rounded p-3 text-sm text-gray-300 border border-gray-600">
+                  {'videoUrl' in (latestProject.result as any) && (latestProject.result as any).videoUrl ? (
+                    <div className="space-y-2">
+                      <video controls className="w-full max-h-[420px] rounded border border-cyber-cyan/30">
+                        <source src={String((latestProject.result as any).videoUrl)} type="video/mp4" />
+                      </video>
+                      <a
+                        href={String((latestProject.result as any).videoUrl)}
+                        download
+                        className="inline-flex items-center glass-button px-3 py-1 rounded"
+                      >
+                        <i className="fas fa-download mr-2"></i>Download MP4
+                      </a>
+                    </div>
+                  ) : ('videoData' in (latestProject.result as any) ? (
+                    <pre className="whitespace-pre-wrap break-words">{String((latestProject.result as any).videoData)}</pre>
+                  ) : null)}
+                </div>
+              )}
+              {latestProject.type === 'security' && latestProject.result && typeof latestProject.result === 'object' && (
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-cyber-red font-orbitron">Security Analysis</span>
+                    <span className="text-xs text-gray-400">AI</span>
+                  </div>
+                  <pre className="bg-dark-card border border-gray-600 rounded p-3 overflow-auto max-h-96 text-gray-300">
+{JSON.stringify(latestProject.result, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* File Manager + Results */}
           <FileManager onFilesChange={setUploadedFiles} />
+          {files && files.length > 0 && (
+            <div className="glass-morph rounded-xl p-4 sm:p-6 smooth-transition">
+              <h3 className="text-lg font-orbitron font-bold text-cyber-cyan mb-3">
+                <i className="fas fa-file-code mr-2"></i>Generated Files
+              </h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {files.map((file) => (
+                  <div key={file.id} className="flex items-center justify-between bg-dark-card rounded-lg p-3">
+                    <div className="min-w-0">
+                      <div className="text-sm text-white truncate">{file.fileName}</div>
+                      <div className="text-xs text-gray-400">{file.fileType}</div>
+                    </div>
+                    <Button size="sm" onClick={() => downloadFile(file)}>
+                      <i className="fas fa-download mr-2"></i>Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {analysisResult && <TriAnalysisResults result={analysisResult} onClear={clearResults} />}
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4 sm:space-y-6 animate-slide-up">
+        <div className="space-y-4 sm:space-y-6">
           {/* AI Status */}
           <div className="glass-morph rounded-xl p-4 sm:p-6">
-            <h3 className="text-lg font-orbitron font-bold text-cyber-green mb-4">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-green mb-2">
               <i className="fas fa-heartbeat mr-2"></i>AI Status
             </h3>
-            {(["gemini", "runway", "imagen"] as const).map((ai) => {
-              const status = getAIStatus(ai);
+            <div className="flex justify-center mb-4">
+              <span className="logo-face" aria-hidden />
+            </div>
+            {(() => {
+              const providers = [
+                { key: 'gemini', label: 'Gemini' },
+                { key: 'openai', label: 'OpenAI' },
+                { key: 'anthropic', label: 'Anthropic' },
+                { key: 'vision', label: 'Google Vision' },
+                { key: 'runway', label: 'Runway' },
+              ] as const;
               return (
-                <div key={ai} className="flex items-center justify-between">
-                  <span className="text-sm capitalize">{ai}</span>
-                  <span className={`text-xs ${status.color}`}>{status.status}</span>
+                <div className="space-y-1">
+                  {providers.map((p) => {
+                    const configured = aiStatus?.providers?.[p.key as keyof typeof aiStatus.providers]?.configured;
+                    const loading = typeof configured === 'undefined';
+                    return (
+                      <div key={p.key} className="flex items-center justify-between">
+                        <span className="text-sm">{p.label}</span>
+                        <span className={`text-xs ${loading ? 'text-gray-400' : configured ? 'text-cyber-green' : 'text-cyber-red'}`}>
+                          {loading ? 'Checking…' : configured ? 'Configured' : 'Missing'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div className="text-[10px] text-gray-500 mt-2">{aiStatus?.timestamp ? `Updated: ${new Date(aiStatus.timestamp).toLocaleTimeString()}` : 'Checking…'}</div>
                 </div>
               );
-            })}
+            })()}
+          </div>
+
+          {/* Create Project */}
+          <div className="glass-morph rounded-xl p-4 sm:p-6">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-yellow mb-2">
+              <i className="fas fa-plus mr-2"></i>Create Project
+            </h3>
+            <CreateProjectForm />
+          </div>
+
+          {/* Auth */}
+          <div className="glass-morph rounded-xl p-4 sm:p-6">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-purple mb-2">
+              <i className="fas fa-user-shield mr-2"></i>Sign up / Log in
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <a href="/auth/google" className="cyber-border rounded-lg">
+                <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
+                  <i className="fab fa-google text-cyber-green text-xl mb-1 block"></i>
+                  <span className="text-xs font-orbitron">Google</span>
+                </div>
+              </a>
+              <a href="/auth/github" className="cyber-border rounded-lg">
+                <div className="bg-dark-panel p-3 rounded-lg text-center w-full">
+                  <i className="fab fa-github text-cyber-cyan text-xl mb-1 block"></i>
+                  <span className="text-xs font-orbitron">GitHub</span>
+                </div>
+              </a>
+            </div>
+            <div className="text-[10px] text-gray-500 mt-2">OAuth requires configuration.</div>
+          </div>
+
+          {/* Download History */}
+          <div className="glass-morph rounded-xl p-4 sm:p-6">
+            <h3 className="text-lg font-orbitron font-bold text-cyber-cyan mb-2">
+              <i className="fas fa-history mr-2"></i>Download History
+            </h3>
+            {downloads.length === 0 ? (
+              <div className="text-xs text-gray-400">No downloads yet.</div>
+            ) : (
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {downloads.map((d) => (
+                  <div key={d.id} className="flex items-center justify-between bg-dark-card rounded-lg p-3">
+                    <div className="min-w-0">
+                      <div className="text-sm text-white truncate">{d.fileName}</div>
+                      <div className="text-[10px] text-gray-500">{new Date(d.downloadedAt).toLocaleString()}</div>
+                    </div>
+                    <Button size="sm" onClick={() => downloadFile({ id: d.fileId, fileName: d.fileName, fileType: '', content: null, binaryData: null, size: d.size, projectId: d.projectId, downloadUrl: d.downloadUrl, createdAt: new Date(d.downloadedAt) } as any)}>
+                      <i className="fas fa-download mr-2"></i>Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </CyberpunkLayout>
+    </>
   );
 }

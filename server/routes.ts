@@ -4,15 +4,28 @@ import { storage } from "./storage";
 import { aiOrchestrator } from "./services/ai-orchestrator";
 import { aiGenerationRequestSchema } from "@shared/schema";
 import { securityRoutes } from "./routes/security";
+import { refactorRoutes } from "./routes/refactor";
 import { z } from "zod";
+import { createDynamicRateLimit } from "./middleware/fortress-security";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register security routes first (they have their own middleware)
   app.use("/api/security", securityRoutes);
+  // Refactor routes (privacy-preserving planning + local execution)
+  app.use("/api/refactor", refactorRoutes);
+
+  // Rate limit for generation endpoint (heavy operation)
+  const generateRateLimit = createDynamicRateLimit({
+    windowMs: 60_000,
+    max: 5,
+    message: { error: 'Generation rate limit exceeded', retryAfter: 60 },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
 
   // Generate content with AI
-  app.post("/api/generate", async (req, res) => {
+  app.post("/api/generate", generateRateLimit, async (req, res) => {
     try {
       const validatedRequest = aiGenerationRequestSchema.parse(req.body);
       const result = await aiOrchestrator.processRequest(validatedRequest);
@@ -22,6 +35,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Generation error:", error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : "Generation failed" 
+      });
+    }
+  });
+
+  // Create project
+  app.post("/api/projects", async (req, res) => {
+    try {
+      const { name, description, type } = req.body || {};
+      if (!name || typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ error: 'Project name is required' });
+      }
+      const project = await storage.createProject({
+        name: name.trim(),
+        description: typeof description === 'string' ? description.trim() : null,
+        type: (type === 'code' || type === 'image' || type === 'video' || type === 'security') ? type : 'code',
+        status: 'processing',
+        prompt: '',
+        result: null,
+      } as any);
+      res.status(201).json(project);
+    } catch (error) {
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to create project"
       });
     }
   });
@@ -73,6 +109,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "File not found" });
       }
 
+      // Record download event (best-effort)
+      try {
+        await storage.createDownload({
+          fileId: file.id,
+          projectId: file.projectId,
+          fileName: file.fileName,
+          size: file.size,
+          downloadUrl: file.downloadUrl ?? null,
+        } as any);
+      } catch {}
+
       if (file.binaryData) {
         // Handle binary files (images, etc.)
         const buffer = Buffer.from(file.binaryData, 'base64');
@@ -88,9 +135,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(404).json({ error: "File content not found" });
       }
     } catch (error) {
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Failed to download file" 
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to download file"
       });
+    }
+  });
+
+  // Download history
+  app.get('/api/downloads', async (req, res) => {
+    try {
+      const limit = Math.min(parseInt(String(req.query.limit || '20'), 10) || 20, 100);
+      const items = await storage.getDownloads(limit);
+      res.json(items);
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to fetch downloads' });
     }
   });
 
@@ -109,7 +167,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Demo route to showcase GINDOC capabilities 
+  // OAuth start routes (configuration required)
+  app.get('/auth/google', (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/google/callback`;
+    const scope = encodeURIComponent('openid email profile');
+    if (!clientId) return res.status(501).json({ error: 'Google OAuth not configured' });
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+    res.redirect(url);
+  });
+
+  app.get('/auth/github', (req, res) => {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const redirectUri = process.env.GITHUB_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/github/callback`;
+    const scope = 'read:user user:email';
+    if (!clientId) return res.status(501).json({ error: 'GitHub OAuth not configured' });
+    const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
+    res.redirect(url);
+  });
+
+  // OAuth callbacks (token exchange requires secrets)
+  app.get('/auth/google/callback', async (req, res) => {
+    const code = String(req.query.code || '');
+    const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/google/callback`;
+    if (!clientId || !clientSecret) return res.status(501).json({ error: 'Google OAuth not fully configured' });
+    try {
+      const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code'
+        }),
+      });
+      const tokens = await tokenRes.json();
+      return res.json({ status: 'ok', provider: 'google', tokens });
+    } catch (e) {
+      return res.status(500).json({ error: 'OAuth exchange failed' });
+    }
+  });
+
+  app.get('/auth/github/callback', async (req, res) => {
+    const code = String(req.query.code || '');
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    const redirectUri = process.env.GITHUB_REDIRECT_URI || `${req.protocol}://${req.get('host')}/auth/github/callback`;
+    if (!clientId || !clientSecret) return res.status(501).json({ error: 'GitHub OAuth not fully configured' });
+    try {
+      const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new URLSearchParams({
+          client_id: clientId,
+          client_secret: clientSecret,
+          code,
+          redirect_uri: redirectUri,
+        }) as any,
+      });
+      const tokens = await tokenRes.json();
+      return res.json({ status: 'ok', provider: 'github', tokens });
+    } catch (e) {
+      return res.status(500).json({ error: 'OAuth exchange failed' });
+    }
+  });
+
+  // Demo route to showcase GINDOC capabilities
   app.post("/api/demo", async (req, res) => {
     try {
       // Create demo project with sample React TypeScript todo app
@@ -392,18 +519,67 @@ export default App;`
 
   // Health check
   app.get("/api/health", (req, res) => {
+    const hasGemini = Boolean(
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    );
+    const hasRunway = Boolean(
+      process.env.RUNWAY_ML_API_KEY ||
+      process.env.NEXT_PUBLIC_RUNWAY_ML_API_KEY
+    );
+
     res.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
       aiServices: {
-        gemini: process.env.GOOGLE_API_KEY ? "configured" : "missing",
-        runway: "simulated",
+        gemini: hasGemini ? "configured" : "missing",
+        runway: hasRunway ? "configured" : "missing",
         imagen: "integrated"
       },
       database: {
         primary: "PostgreSQL (Neon)",
         realtime: "GindocDB (Firebase Clone)",
         status: "operational"
+      }
+    });
+  });
+
+  // AI provider status
+  app.get("/api/ai/status", (req, res) => {
+    const hasGemini = Boolean(
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_GEMINI_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    );
+    const hasOpenAI = Boolean(
+      process.env.OPENAI_API_KEY ||
+      process.env.NEXT_PUBLIC_OPENAI_API_KEY
+    );
+    const hasAnthropic = Boolean(
+      process.env.ANTHROPIC_API_KEY ||
+      process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
+    );
+    const hasVision = Boolean(
+      process.env.GOOGLE_VISION_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.NEXT_PUBLIC_GOOGLE_API_KEY
+    );
+    const hasRunway = Boolean(
+      process.env.RUNWAY_ML_API_KEY ||
+      process.env.NEXT_PUBLIC_RUNWAY_ML_API_KEY
+    );
+
+    res.json({
+      timestamp: new Date().toISOString(),
+      providers: {
+        gemini: { configured: hasGemini },
+        openai: { configured: hasOpenAI },
+        anthropic: { configured: hasAnthropic },
+        vision: { configured: hasVision },
+        runway: { configured: hasRunway },
       }
     });
   });

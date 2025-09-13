@@ -5,6 +5,7 @@ import {
   projects,
   generatedFiles,
   securityScans,
+  downloads,
   type User,
   type InsertUser,
   type Project,
@@ -12,7 +13,9 @@ import {
   type GeneratedFile,
   type InsertFile,
   type SecurityScan,
-  type InsertSecurityScan
+  type InsertSecurityScan,
+  type Download,
+  type InsertDownload
 } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { IStorage } from "./storage";
@@ -119,6 +122,40 @@ export class DatabaseStorage implements IStorage {
   async getFile(id: string): Promise<GeneratedFile | undefined> {
     const [file] = await db.select().from(generatedFiles).where(eq(generatedFiles.id, id));
     return file;
+  }
+
+  async updateFile(id: string, updates: Partial<GeneratedFile>): Promise<GeneratedFile> {
+    const payload: any = { ...updates };
+    if ('size' in payload && typeof payload.size !== 'number') delete payload.size;
+    const [row] = await db
+      .update(generatedFiles)
+      .set(payload)
+      .where(eq(generatedFiles.id, id))
+      .returning();
+    return row;
+  }
+
+  // Download history
+  async createDownload(event: InsertDownload): Promise<Download> {
+    const [row] = await db.insert(downloads).values(event).returning();
+    return row;
+  }
+
+  async getDownloads(limit = 20): Promise<Download[]> {
+    try {
+      return await db
+        .select()
+        .from(downloads)
+        .orderBy(desc(downloads.downloadedAt))
+        .limit(limit);
+    } catch (error: any) {
+      const msg = typeof error?.message === 'string' ? error.message : '';
+      if (msg.includes('relation "downloads" does not exist')) {
+        return [];
+      }
+      console.error('Error getting downloads:', error);
+      throw new Error('Failed to get downloads');
+    }
   }
 
   // Security scan methods

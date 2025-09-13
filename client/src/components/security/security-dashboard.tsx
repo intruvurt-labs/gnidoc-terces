@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -121,7 +122,42 @@ export function SecurityDashboard() {
     threatTrends: []
   });
 
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const allowedTabs = ['overview', 'threats', 'scans', 'analysis'] as const;
+  const initialTab = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab') || 'overview';
+      return allowedTabs.includes(t as any) ? t : 'overview';
+    } catch {
+      return 'overview';
+    }
+  })();
+  const [selectedTab, setSelectedTab] = useState<string>(initialTab);
+
+  const [location] = useLocation();
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab');
+      if (t && t !== selectedTab && allowedTabs.includes(t as any)) {
+        setSelectedTab(t);
+      }
+    } catch {
+      // ignore
+    }
+  }, [location]);
+
+  const handleTabChange = (val: string) => {
+    setSelectedTab(val);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', val);
+      window.history.replaceState(null, '', url.toString());
+    } catch {
+      // ignore
+    }
+  };
 
   // Simulate real-time updates
   useEffect(() => {
@@ -129,17 +165,16 @@ export function SecurityDashboard() {
       // Update metrics randomly
       setMetrics(prev => ({
         ...prev,
-        overallScore: Math.max(70, prev.overallScore + (Math.random() - 0.5) * 2),
-        threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 3),
-        requestsPerSecond: 8 + Math.random() * 10
+        overallScore: Math.max(70, prev.overallScore + (((Date.now()/3000)%2)-1)),
+        threatsBlocked: prev.threatsBlocked + (((Date.now()/3000)|0) % 3)
       }));
 
       // Update real-time stats
       setRealTimeStats(prev => ({
         ...prev,
-        requestsPerSecond: 8 + Math.random() * 10,
-        blockedRequests: prev.blockedRequests + Math.floor(Math.random() * 2),
-        suspiciousActivity: Math.max(0, prev.suspiciousActivity + Math.floor(Math.random() * 3) - 1)
+        requestsPerSecond: 8 + ((Date.now() / 1000) % 10),
+        blockedRequests: prev.blockedRequests + (((Date.now()/3000)|0) % 2),
+        suspiciousActivity: Math.max(0, prev.suspiciousActivity + ((((Date.now()/3000)|0) % 3) - 1))
       }));
     }, 3000);
 
@@ -182,8 +217,8 @@ export function SecurityDashboard() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="w-8 h-8 text-cyan-400" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
-            FORTRESS ELITE SECURITY
+          <h1 className="text-4xl md:text-6xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent">
+            gnidoC Security
           </h1>
           <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
             MILITARY GRADE
@@ -207,7 +242,7 @@ export function SecurityDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-green-400">{metrics.overallScore}%</p>
+                <p className="text-2xl font-bold text-green-400">{metrics.overallScore.toFixed(2)}%</p>
                 <p className="text-xs text-gray-400">Security Score</p>
               </div>
             </div>
@@ -255,7 +290,7 @@ export function SecurityDashboard() {
               <Activity className="w-8 h-8 text-green-400" />
               <div>
                 <p className="text-sm text-gray-400">System Uptime</p>
-                <p className="text-xl font-bold text-green-400">{metrics.uptime}%</p>
+                <p className="text-xl font-bold text-green-400">{metrics.uptime.toFixed(2)}%</p>
               </div>
             </div>
             <div className="mt-3 text-sm text-gray-400">
@@ -266,7 +301,7 @@ export function SecurityDashboard() {
       </div>
 
       {/* Main Dashboard */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+      <Tabs value={selectedTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="bg-gray-900/50 border border-cyan-500/30">
           <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-500/20">
             <BarChart3 className="w-4 h-4 mr-2" />
@@ -359,7 +394,7 @@ export function SecurityDashboard() {
                   <div className="text-sm text-gray-400">Scans Completed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-400">{metrics.uptime}%</div>
+                  <div className="text-2xl font-bold text-blue-400">{metrics.uptime.toFixed(2)}%</div>
                   <div className="text-sm text-gray-400">Uptime</div>
                 </div>
                 <div className="text-center">

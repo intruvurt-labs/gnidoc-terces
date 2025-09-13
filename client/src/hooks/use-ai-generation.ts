@@ -28,7 +28,7 @@ export function useAIGeneration() {
       let currentProgress = 5;
       const progressInterval = setInterval(() => {
         setState(prev => {
-          const increment = Math.random() * 8 + 2; // 2-10% increments
+          const t = Date.now() % 1000; const increment = 2 + (t / 1000) * 8;
           currentProgress = Math.min(prev.progress + increment, 85);
 
           let newStatus = prev.status;
@@ -67,6 +67,14 @@ export function useAIGeneration() {
       } catch (error) {
         clearInterval(progressInterval);
         setState({ isGenerating: false, progress: 0, status: "Error occurred" });
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.startsWith('429')) {
+          toast({
+            title: 'Rate limit hit',
+            description: 'You have reached the generation limit. Please wait a minute and try again.',
+            variant: 'destructive',
+          });
+        }
         throw error;
       }
     },

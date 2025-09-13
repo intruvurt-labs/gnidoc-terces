@@ -32,7 +32,8 @@ export function EnhancedFileManager({
 }: EnhancedFileManagerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showExportOptions, setShowExportOptions] = useState(false);
-  const [selectedExportFormat, setSelectedExportFormat] = useState<ExportOptions['format']>('pdf');
+  const [multiMode, setMultiMode] = useState(false);
+  const [selectedFormats, setSelectedFormats] = useState<ExportOptions['format'][]>([]);
   
   const {
     files,
@@ -45,7 +46,7 @@ export function EnhancedFileManager({
     limits
   } = useFileUpload();
 
-  const { exportFiles, downloadProgress } = useFileExport();
+  const { exportFiles, exportMultiple, downloadProgress } = useFileExport();
 
   const stats = getFileStats();
 
@@ -67,6 +68,10 @@ export function EnhancedFileManager({
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
+  };
+
+  const toggleFormat = (format: ExportOptions['format']) => {
+    setSelectedFormats(prev => prev.includes(format) ? prev.filter(f => f !== format) : [...prev, format]);
   };
 
   const handleExport = async (format: ExportOptions['format']) => {
@@ -159,14 +164,26 @@ export function EnhancedFileManager({
         </div>
         
         {enableExport && files.length > 0 && (
-          <Button
-            onClick={() => setShowExportOptions(!showExportOptions)}
-            className="glass-button"
-            size="sm"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowExportOptions(!showExportOptions)}
+              className="glass-button"
+              size="sm"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            {showExportOptions && (
+              <Button
+                onClick={() => setMultiMode(m => !m)}
+                variant={multiMode ? 'default' : 'outline'}
+                size="sm"
+                className={multiMode ? 'bg-cyber-green text-black' : ''}
+              >
+                {multiMode ? 'Multi: ON' : 'Multi: OFF'}
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
@@ -175,22 +192,43 @@ export function EnhancedFileManager({
         <div className="mb-6 p-4 bg-dark-card rounded-lg border border-cyber-cyan/30">
           <h4 className="text-sm font-orbitron text-cyber-cyan mb-3">Export Options</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {exportFormats.map(({ format, icon: Icon, label, description }) => (
-              <button
-                key={format}
-                onClick={() => handleExport(format as ExportOptions['format'])}
-                disabled={downloadProgress.isExporting}
-                className="p-3 bg-dark-panel rounded-lg border border-gray-600 hover:border-cyber-green/50 transition-all text-left group disabled:opacity-50"
-              >
-                <div className="flex items-center space-x-2 mb-1">
-                  <Icon className="w-4 h-4 text-cyber-green" />
-                  <span className="text-sm font-medium text-white">{label}</span>
-                </div>
-                <p className="text-xs text-gray-400">{description}</p>
-              </button>
-            ))}
+            {exportFormats.map(({ format, icon: Icon, label, description }) => {
+              const selected = selectedFormats.includes(format as ExportOptions['format']);
+              return (
+                <button
+                  key={format}
+                  onClick={() => multiMode ? toggleFormat(format as ExportOptions['format']) : handleExport(format as ExportOptions['format'])}
+                  disabled={downloadProgress.isExporting}
+                  className={`p-3 rounded-lg border transition-all text-left group disabled:opacity-50 ${selected ? 'bg-cyber-green/20 border-cyber-green' : 'bg-dark-panel border-gray-600 hover:border-cyber-green/50'}`}
+                >
+                  <div className="flex items-center space-x-2 mb-1">
+                    <Icon className={`w-4 h-4 ${selected ? 'text-cyber-green' : 'text-cyber-green'}`} />
+                    <span className="text-sm font-medium text-white">{label}</span>
+                    {multiMode && selected && <Check className="w-3 h-3 text-cyber-green ml-auto" />}
+                  </div>
+                  <p className="text-xs text-gray-400">{description}</p>
+                </button>
+              );
+            })}
           </div>
-          
+
+          {multiMode && selectedFormats.length > 0 && (
+            <div className="mt-3 flex items-center gap-2">
+              <Button
+                size="sm"
+                className="glass-button"
+                disabled={downloadProgress.isExporting}
+                onClick={async () => {
+                  const exportData = { files, analysisData, stats, timestamp: new Date().toISOString() };
+                  await exportMultiple(exportData, selectedFormats, { includeMetadata: true, includeAnalysis: true, includeImages: true, template: 'enterprise', paperSize: 'A4', orientation: 'portrait' });
+                }}
+              >
+                <Download className="w-4 h-4 mr-1" /> Export Selected ({selectedFormats.length})
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelectedFormats([])}>Clear</Button>
+            </div>
+          )}
+
           {downloadProgress.isExporting && (
             <div className="mt-4 p-3 bg-cyber-green/10 rounded-lg border border-cyber-green/30">
               <div className="flex items-center justify-between mb-2">

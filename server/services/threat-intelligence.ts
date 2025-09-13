@@ -152,7 +152,7 @@ export class ThreatIntelligenceEngine extends EventEmitter {
     CRYPTO_SCAM_DATABASE.forEach(threat => {
       const intel: ThreatIntelligence = {
         ...threat,
-        firstSeen: new Date(Date.now() - Math.random() * 86400000 * 30), // Random within 30 days
+        firstSeen: (() => { const h = Array.from(threat.id).reduce((a,c)=>((a*33)^c.charCodeAt(0))>>>0,5381); const days = h % 30; return new Date(Date.now() - days * 86400000); })(),
         lastSeen: new Date(),
         attribution: {
           group: threat.type === 'RUGPULL' ? 'DeFi Scammers' : 'Unknown',
@@ -411,8 +411,8 @@ export class ThreatIntelligenceEngine extends EventEmitter {
       
       const fileHash = createHash('sha256').update(codeContent).digest('hex');
       
-      // Simulate threat lookup response
-      if (Math.random() < 0.1) { // 10% chance of finding external threat
+      // Simulate threat lookup response deterministically (~10%) based on file hash
+      if ((parseInt(fileHash.slice(0,2), 16) % 10) === 0) {
         const threat: ThreatIntelligence = {
           id: `external_${fileHash.substring(0, 8)}`,
           type: 'MALWARE',

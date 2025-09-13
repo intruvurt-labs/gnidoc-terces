@@ -32,6 +32,15 @@ type Particle = { x: number; y: number; vx: number; vy: number; r: number };
       obstacles = rects.map((r) => ({ x: r.left, y: r.top, w: r.width, h: r.height }));
     }
 
+    // Simple seeded PRNG (LCG)
+    function createPRNG(seed: number) {
+      let s = seed >>> 0 || 1;
+      return () => {
+        s = Math.imul(48271, s) % 0x7fffffff;
+        return (s & 0x7fffffff) / 0x7fffffff;
+      };
+    }
+
     function resize() {
       width = canvas.clientWidth;
       height = canvas.clientHeight;
@@ -42,21 +51,25 @@ type Particle = { x: number; y: number; vx: number; vy: number; r: number };
       const colWidth = 24;
       const count = Math.ceil(width / colWidth);
       columns.length = 0;
+      const prngCols = createPRNG(Math.floor(width * 97 + height * 131));
       for (let i = 0; i < count; i++) {
-        columns.push({ y: Math.random() * -200, speed: 20 + Math.random() * 25 }); // px/sec
+        columns.push({ y: -200 * prngCols(), speed: 20 + 25 * prngCols() });
       }
 
       // particles
       particles.length = 0;
       const N = Math.max(24, Math.floor((width * height) / 120000));
+      const prngP = createPRNG(Math.floor(width * 193 + height * 389));
       for (let i = 0; i < N; i++) {
-        particles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() * 0.3 + 0.05) * (Math.random() < 0.5 ? -1 : 1), // slow
-          vy: (Math.random() * 0.3 + 0.05) * (Math.random() < 0.5 ? -1 : 1),
-          r: 2,
-        });
+        const sx = prngP();
+        const sy = prngP();
+        const s1 = prngP();
+        const s2 = prngP();
+        const vxmag = 0.05 + 0.3 * s1;
+        const vymag = 0.05 + 0.3 * s2;
+        const vx = (prngP() < 0.5 ? -1 : 1) * vxmag;
+        const vy = (prngP() < 0.5 ? -1 : 1) * vymag;
+        particles.push({ x: sx * width, y: sy * height, vx, vy, r: 2 });
       }
 
       captureObstacles();
@@ -98,12 +111,13 @@ type Particle = { x: number; y: number; vx: number; vy: number; r: number };
       ctx.textAlign = "center";
       ctx.fillStyle = "#ffeb3b"; // yellow
 
+      const prngG = createPRNG(1234567 + ((width|0) << 10) + (height|0));
       columns.forEach((col, i) => {
         const x = i * colWidth + colWidth / 2;
-        const char = glyphs[Math.floor(Math.random() * glyphs.length)] || "";
+        const char = glyphs[Math.floor(prngG() * glyphs.length)] || "";
         ctx.fillText(char, x, col.y);
         col.y += col.speed * (dt / 1000);
-        if (col.y > height + 20) col.y = Math.random() * -200;
+        if (col.y > height + 20) col.y = -200 * prngG();
       });
       ctx.restore();
     }

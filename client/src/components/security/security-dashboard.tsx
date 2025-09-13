@@ -166,7 +166,7 @@ export function SecurityDashboard() {
       setMetrics(prev => ({
         ...prev,
         overallScore: Math.max(70, prev.overallScore + (((Date.now()/3000)%2)-1)),
-        threatsBlocked: prev.threatsBlocked + Math.floor(Math.random() * 3)
+        threatsBlocked: prev.threatsBlocked + (((Date.now()/3000)|0) % 3)
       }));
 
       // Update real-time stats

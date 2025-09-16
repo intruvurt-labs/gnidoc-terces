@@ -1,5 +1,5 @@
 [build]
-  command = "npm ci && npx vite build --config vite.config.ts"
+  command = "npm ci && npm run build"
   publish = "client/dist"
 
 [[redirects]]

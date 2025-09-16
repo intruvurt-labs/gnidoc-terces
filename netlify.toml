@@ -1,0 +1,16 @@
+# netlify.toml at repo root
+[build]
+  base = "client"          # run from /client
+  command = "npm ci && npm run build"
+  publish = "dist"         # serve client/dist
+
+# SPA fallback so client routes work
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Optional; if you add Netlify Functions later
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

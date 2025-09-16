@@ -1,12 +1,10 @@
-# netlify.toml
 [build]
-  command = "npm ci && npm run build"
-  publish = "client/dist"   # adjust to "dist" if your Vite outDir is root/dist
+  command = "npm ci && npx vite build --config vite.config.ts"
+  publish = "client/dist"
 
-# SPA fallback
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to   = "/index.html"
   status = 200
 
 [functions]
